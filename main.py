@@ -1,5 +1,5 @@
-import pygame  # 파이게임 패키지 임포트
 import sys  # sys 패키지 임포트
+import pygame  # 파이게임 패키지 임포트
 from pygame.locals import QUIT  # 파이게임의 기능 중 종료를 임포트
 
 # 글로벌 변수 선언
@@ -32,11 +32,11 @@ p2_piece_img = pygame.image.load("p2_icon.png")
 
 
 # 이미지 스케일링
-p1_large_piece_img = pygame.transform.scale(p1_piece_img, (80, 80))
+p1_large_piece_img = pygame.transform.scale(p1_piece_img, (60, 60))
 p1_medium_piece_img = pygame.transform.scale(p1_piece_img, (40, 40))
 p1_small_piece_img = pygame.transform.scale(p1_piece_img, (20, 20))
 
-p2_large_piece_img = pygame.transform.scale(p2_piece_img, (80, 80))
+p2_large_piece_img = pygame.transform.scale(p2_piece_img, (60, 60))
 p2_medium_piece_img = pygame.transform.scale(p2_piece_img, (40, 40))
 p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
 
@@ -45,33 +45,36 @@ p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
 def init_game_window():
     screen.fill(white)  # 배경 색
 
+    screen.fill((255,255,0),(0,0,width,100))
+    screen.fill((255,255,0),(0,400,width,500)) #조각선택란 색상 임의 변경
+
     # 세로줄 그리기.. pygame.draw.line(화면, 색, 시작위치, 끝위치, 굵기)
-    pygame.draw.line(screen, line_color, (width / 3, 0 + (height / 6)), (width / 3, height - (height / 3)), 7)  # 화면, 색, 시작위치, 끝위치, 굵기
-    pygame.draw.line(screen, line_color, (width / 3 * 2, 0 + (height / 6)), (width / 3 * 2, height - (height / 3)), 7)
+    pygame.draw.line(screen, line_color, (width / 3, 0 ), (width / 3, height - (height / 6)), 5)  # 화면, 색, 시작위치, 끝위치, 굵기
+    pygame.draw.line(screen, line_color, (width / 3 * 2, 0 ), (width / 3 * 2, height - (height / 6)), 5)
 
     # 가로줄 그리기
-    pygame.draw.line(screen, line_color, (0, 0), (width, 0), 7)
-    pygame.draw.line(screen, line_color, (0, height / 6), (width, height / 6), 7)
-    pygame.draw.line(screen, line_color, (0, height / 3), (width, height / 3), 7)
-    pygame.draw.line(screen, line_color, (0, height / 2), (width, height / 2), 7)
-    pygame.draw.line(screen, line_color, (0, height / 3 * 2), (width, height / 3 * 2), 7)
-    pygame.draw.line(screen, line_color, (0, height / 6 * 5), (width, height / 6 * 5), 7)
+    pygame.draw.line(screen, line_color, (0, 0), (width, 0), 5)
+    pygame.draw.line(screen, line_color, (0, height / 6), (width, height / 6), 5)
+    pygame.draw.line(screen, line_color, (0, height / 3), (width, height / 3), 5)
+    pygame.draw.line(screen, line_color, (0, height / 2), (width, height / 2), 5)
+    pygame.draw.line(screen, line_color, (0, height / 3 * 2), (width, height / 3 * 2), 5)
+    pygame.draw.line(screen, line_color, (0, height / 6 * 5), (width, height / 6 * 5), 5)
 
     # 말을 두개씩 객체 생성
-    screen.blit(p2_small_piece_img, (0, 30))
-    screen.blit(p2_small_piece_img, (40, 30))
-    screen.blit(p2_medium_piece_img, (100, 30))
-    screen.blit(p2_medium_piece_img, (160, 30))
-    screen.blit(p2_large_piece_img, (210, 10))
-    screen.blit(p2_large_piece_img, (310, 10))
+    screen.blit(p2_small_piece_img, (40, 40))
+    screen.blit(p2_small_piece_img, (70, 40))
+    screen.blit(p2_medium_piece_img, (155, 30))
+    screen.blit(p2_medium_piece_img, (205, 30))
+    screen.blit(p2_large_piece_img, (275, 20))
+    screen.blit(p2_large_piece_img, (335, 20))
 
     # 말을 두개씩
-    screen.blit(p1_small_piece_img, (0, 30+400))
-    screen.blit(p1_small_piece_img, (40, 30+400))
-    screen.blit(p1_medium_piece_img, (100, 30+400))
-    screen.blit(p1_medium_piece_img, (160, 30+400))
-    screen.blit(p1_large_piece_img, (210, 10+400))
-    screen.blit(p1_large_piece_img, (310, 10+400))
+    screen.blit(p1_small_piece_img, (40, 40+400))
+    screen.blit(p1_small_piece_img, (70, 40+400))
+    screen.blit(p1_medium_piece_img, (155, 30+400))
+    screen.blit(p1_medium_piece_img, (205, 30+400))
+    screen.blit(p1_large_piece_img, (275, 20+400))
+    screen.blit(p1_large_piece_img, (335, 20+400))
 
     draw_status()
 
@@ -140,7 +143,8 @@ def drawIcon(row, col, which_icon):
             else:  # which_icon == 2
                 screen.blit(p2_large_piece_img, (posy, posx))
             player = 'P1'
-
+        screen.fill((255,255,0),(0,0,width,100))
+        screen.fill((255,255,0),(0,400,width,500))
     pygame.display.update()
 
 
@@ -149,13 +153,36 @@ def select_piece():
     # 마우스 클릭 좌표
     x, y = pygame.mouse.get_pos()
 
+    if player=='P1':
+        if y > 100: #선택안하면 진행 X
+            return None
+        elif 0 < x < (width/3):
+            screen.fill((45,180,0),(0,0,width / 3,height / 6))
+            return 0
+        elif (width/3) < x < (width * 2 / 3):
+            screen.fill((45,180,0),(width / 3,0,width / 3,height / 6))
+            return 1
+        elif x < width:
+            screen.fill((45,180,0),(width / 3 * 2,0,width/3,height / 6))
+            return 2
+    
+    elif player=='P2':
+        if (((height * 4) / 6) > y) or (y > ((height * 5) / 6)):
+            return None
+        elif 0 < x < (width/3):
+            screen.fill((45,180,0),(0,((height * 4) / 6),width / 3,height*5 / 6))
+            return 0
+        elif (width/3) < x < (width * 2 / 3):
+            screen.fill((45,180,0),(width/3,((height * 4) / 6),width / 3,height*5 / 6))
+            return 1
+        elif x < width:
+            screen.fill((45,180,0),(width/3*2,((height * 4) / 6),width / 3,height*5 / 6))
+            return 2
+    
 
+    pygame.display.update()
     # 해당 좌표에 해당하는 말의 크기를 반환, 이후 객체 사라져야함.
-
-
-
-    return 1  # 중간크기의 말을 놓겠다(임의로 설정한것임)
-
+    
 
 # 사용자 마우스 클릭에서 입력을 얻기 위해 설계한 함수
 def user_click(which_piece):
