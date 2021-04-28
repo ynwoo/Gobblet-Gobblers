@@ -23,6 +23,14 @@ line_color = (0, 0, 0)
 # 말을 선택한 상태인지 표시
 choice = False
 
+#처음인지 여부
+first = True
+
+#게임 진행을 위한 이중배열
+#player에 따라 1,2 비어있으면 0
+#깊이가 종류를 표현
+array = [[[0]*4]*4]*3
+
 pygame.init()  # 파이게임 모듈을 초기화
 fps = 30  # fps 설정
 screen = pygame.display.set_mode((width, height))  # 만들 윈도우 창의 화면 크기 설정
@@ -45,7 +53,10 @@ p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
 
 # 말의 이미지 불러오기(추가)
 def init_game_window():
-    screen.fill(white)  # 배경 색
+    global first
+    if first is True:#처음이후 화면변화에는 채우기 제외
+        screen.fill(white)  # 배경 색
+        first = False
 
     screen.fill((255, 255, 0), (0, 0, width, 100))
     screen.fill((255, 255, 0), (0, 400, width, 500))  # 조각선택란 색상 임의 변경
@@ -114,39 +125,38 @@ def end_check():
 def drawIcon(row, col, which_icon):
     global player
     # print(row, col)
-    if row != None:
+    if row != 4:
+        if row == 0:
+            posx = height * 3 / 12
         if row == 1:
-            posx = height / 6 + 10
+            posx = height * 5 / 12
         if row == 2:
-            posx = height / 3 + 10
-        if row == 3:
-            posx = height / 2 + 10
+            posx = height * 7 / 12
 
+        if col == 0:
+            posy = width / 6
         if col == 1:
-            posy = 30
+            posy = width / 2
         if col == 2:
-            posy = width / 3 + 30
-        if col == 3:
-            posy = width / 3 * 2 + 30
+            posy = width / 6 * 5
 
-        if player == 'P1':
+        if player == 'P2':
             if which_icon == 0:
-                screen.blit(p1_small_piece_img, (posy, posx))
+                screen.blit(p1_small_piece_img, (posy-10, posx-10))
             elif which_icon == 1:
-                screen.blit(p1_medium_piece_img, (posy, posx))
+                screen.blit(p1_medium_piece_img, (posy-20, posx-20))
             else:  # which_icon == 2
-                screen.blit(p1_large_piece_img, (posy, posx))
-            player = 'P2'
+                screen.blit(p1_large_piece_img, (posy-30, posx-30))
+            player = 'P1'
         else:
             if which_icon == 0:
-                screen.blit(p2_small_piece_img, (posy, posx))
+                screen.blit(p2_small_piece_img, (posy-10, posx-10))
             elif which_icon == 1:
-                screen.blit(p2_medium_piece_img, (posy, posx))
+                screen.blit(p2_medium_piece_img, (posy-20, posx-20))
             else:  # which_icon == 2
-                screen.blit(p2_large_piece_img, (posy, posx))
-            player = 'P1'
-        screen.fill((255, 255, 0), (0, 0, width, 100))
-        screen.fill((255, 255, 0), (0, 400, width, 500))
+                screen.blit(p2_large_piece_img, (posy-30, posx-30))
+            player = 'P2'
+    init_game_window()
     pygame.display.update()
 
 
@@ -158,6 +168,7 @@ def select_piece():
 
     if player == 'P1':
         if y > 100:  # 선택안하면 진행 X
+            choice = False
             return None
         elif 0 < x < (width / 3):
             screen.fill((45, 180, 0), (0, 0, width / 3, height / 6))
@@ -176,15 +187,15 @@ def select_piece():
         if (((height * 4) / 6) > y) or (y > ((height * 5) / 6)):
             return None
         elif 0 < x < (width / 3):
-            screen.fill((45, 180, 0), (0, ((height * 4) / 6), width / 3, height * 5 / 6))
+            screen.fill((45, 180, 0), (0, ((height * 4) / 6), width / 3, height / 6))
             choice = True
             return 0
         elif (width / 3) < x < (width * 2 / 3):
-            screen.fill((45, 180, 0), (width / 3, ((height * 4) / 6), width / 3, height * 5 / 6))
+            screen.fill((45, 180, 0), (width / 3, ((height * 4) / 6), width / 3, height / 6))
             choice = True
             return 1
         elif x < width:
-            screen.fill((45, 180, 0), (width / 3 * 2, ((height * 4) / 6), width / 3, height * 5 / 6))
+            screen.fill((45, 180, 0), (width / 3 * 2, ((height * 4) / 6), width / 3, height  / 6))
             choice = True
             return 2
 
@@ -195,45 +206,76 @@ def select_piece():
 # 사용자 마우스 클릭에서 입력을 얻기 위해 설계한 함수
 def user_click(which_piece):
     global choice
+    global array
     # 어떤 말인지, 크기에 대한 정보가 없으면
     if which_piece is None:
         return
 
     # 마우스 클릭 좌표
     x, y = pygame.mouse.get_pos()
-    # print(x, y)
-
+    print(x, y)
+    col = None
+    row = None
     # 마우스 클릭의 열을 저장
     if x < width / 3:
-        col = 1
+        col = 0
 
     elif x < width / 3 * 2:
-        col = 2
+        col = 1
 
     elif x < width:
-        col = 3
-
-    else:
-        col = None
+        col = 2
 
     # 마우스 클릭의 행을 저장
     if height / 3 > y > height / 6:
-        row = 1
+        row = 0
 
     elif height / 2 > y > height / 3:
-        row = 2
+        row = 1
 
     elif height / 3 * 2 > y > height / 2:
-        row = 3
+        row = 2
 
-    else:
-        row = None
-
+    if (col == None) or (row == None) :
+        return
     # 만약 얻은 행, 열에 말을 놓을 수 있다면 말을 놓는다!
+    
+    if array[col][row][which_piece] == 0:
+        if which_piece == 0:
+            if (array[col][row][1]==0) and (array[col][row][2]==0):
+                if player=='p1':
+                    array[col][row][which_piece]=1
+                else:
+                    array[col][row][which_piece]=2
+                drawIcon(row,col,which_piece)
+            else:
+                choice = False
+                init_game_window()                
+        elif which_piece == 1:
+            if array[col][row][2]==0: 
+                if player=='p1':
+                    array[col][row][which_piece]=1
+                else:
+                    array[col][row][which_piece]=2
+                drawIcon(row,col,which_piece)
+            else:
+                choice = False
+                init_game_window()
+        else:
+            if player=='p1':
+                array[col][row][which_piece]=1
+            else:
+                array[col][row][which_piece]=2
+            drawIcon(row,col,which_piece)
+    else:
+        choice = False
+        init_game_window()
+
     # if ...
-    drawIcon(row, col, which_piece)
-    choice = False
+    
     end_check()
+
+
 
 
 def main():  # 메인함수
