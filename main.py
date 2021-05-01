@@ -1,5 +1,6 @@
 import sys  # sys 패키지 임포트
 import pygame  # 파이게임 패키지 임포트
+import numpy as np
 from pygame.locals import QUIT  # 파이게임의 기능 중 종료를 임포트
 
 # 글로벌 변수 선언
@@ -29,7 +30,12 @@ first = True
 #게임 진행을 위한 이중배열
 #player에 따라 1,2 비어있으면 0
 #깊이가 종류를 표현
-array = [[[0]*4]*4]*3
+array = np.arange(27).reshape(3,3,3)
+for i in range(0,3):
+    for j in range(0,3):
+        for k in range(0,3):
+            array[i][j][k] = 0 
+
 
 pygame.init()  # 파이게임 모듈을 초기화
 fps = 30  # fps 설정
@@ -124,6 +130,7 @@ def end_check():
 # 해당하는 위치에 아이콘 그리기
 def drawIcon(row, col, which_icon):
     global player
+    global choice
     # print(row, col)
     if row != 4:
         if row == 0:
@@ -156,6 +163,7 @@ def drawIcon(row, col, which_icon):
             else:  # which_icon == 2
                 screen.blit(p2_large_piece_img, (posy-30, posx-30))
             player = 'P2'
+    choice = False
     init_game_window()
     pygame.display.update()
 
@@ -185,6 +193,7 @@ def select_piece():
 
     elif player == 'P2':
         if (((height * 4) / 6) > y) or (y > ((height * 5) / 6)):
+            choice = False
             return None
         elif 0 < x < (width / 3):
             screen.fill((45, 180, 0), (0, ((height * 4) / 6), width / 3, height / 6))
@@ -243,7 +252,7 @@ def user_click(which_piece):
     if array[col][row][which_piece] == 0:
         if which_piece == 0:
             if (array[col][row][1]==0) and (array[col][row][2]==0):
-                if player=='p1':
+                if player=='P1':
                     array[col][row][which_piece]=1
                 else:
                     array[col][row][which_piece]=2
@@ -253,7 +262,7 @@ def user_click(which_piece):
                 init_game_window()                
         elif which_piece == 1:
             if array[col][row][2]==0: 
-                if player=='p1':
+                if player=='P1':
                     array[col][row][which_piece]=1
                 else:
                     array[col][row][which_piece]=2
