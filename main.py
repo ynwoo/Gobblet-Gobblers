@@ -56,7 +56,25 @@ p2_large_piece_img = pygame.transform.scale(p2_piece_img, (60, 60))
 p2_medium_piece_img = pygame.transform.scale(p2_piece_img, (40, 40))
 p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
 
-
+def limit_2(which_piece):#두개씩만 놓을 수 있게 개수 제한
+    global player
+    global array
+    sum = 0
+    if player == 'P1':
+        for i in range(0,3):
+            for j in range(0,3):
+                if array[i][j][which_piece] == 1:
+                    sum = sum + 1                
+    else:
+        for i in range(0,3):
+            for j in range(0,3):
+                if array[i][j][which_piece] == 2:
+                    sum = sum + 1
+    if sum < 2:
+        return True
+    else:
+        return False
+    
 # 말의 이미지 불러오기(추가)
 def init_game_window():
     global first
@@ -222,7 +240,7 @@ def user_click(which_piece):
 
     # 마우스 클릭 좌표
     x, y = pygame.mouse.get_pos()
-    print(x, y)
+    #print(x, y)
     col = None
     row = None
     # 마우스 클릭의 열을 저장
@@ -252,16 +270,34 @@ def user_click(which_piece):
     if array[col][row][which_piece] == 0:
         if which_piece == 0:
             if (array[col][row][1]==0) and (array[col][row][2]==0):
-                if player=='P1':
-                    array[col][row][which_piece]=1
+                if limit_2(which_piece) == True:
+                    if player=='P1':
+                        array[col][row][which_piece]=1
+                    else:
+                        array[col][row][which_piece]=2
+                    drawIcon(row,col,which_piece)
                 else:
-                    array[col][row][which_piece]=2
-                drawIcon(row,col,which_piece)
+                    choice = False
+                    init_game_window()
             else:
                 choice = False
                 init_game_window()                
         elif which_piece == 1:
-            if array[col][row][2]==0: 
+            if array[col][row][2]==0:
+                if limit_2(which_piece) == True:
+                    if player=='P1':
+                        array[col][row][which_piece]=1
+                    else:
+                        array[col][row][which_piece]=2
+                    drawIcon(row,col,which_piece)
+                else:
+                    choice = False
+                    init_game_window()
+            else:
+                choice = False
+                init_game_window()
+        else:
+            if limit_2(which_piece) == True:
                 if player=='P1':
                     array[col][row][which_piece]=1
                 else:
@@ -270,12 +306,6 @@ def user_click(which_piece):
             else:
                 choice = False
                 init_game_window()
-        else:
-            if player=='p1':
-                array[col][row][which_piece]=1
-            else:
-                array[col][row][which_piece]=2
-            drawIcon(row,col,which_piece)
     else:
         choice = False
         init_game_window()
@@ -322,7 +352,7 @@ def main():  # 메인함수
                 if not choice:
                     # 1. 놓을 말을 선택(선택했다면 그 말의 정보를 리턴할 것이고 그 리턴한 값을 user_click()에 인자로 넣음.)
                     which_piece = select_piece()  # which_piece = 어디를 클릭했는지에 따라 반환을 다르게 하는 함수
-                    print(which_piece)
+                    #print(which_piece)
                 else:
                     # 2. 놓을 위치 선택
                     user_click(which_piece)  # 인자로 0, 1, 2(작은 말, 중간 말, 큰 말)
