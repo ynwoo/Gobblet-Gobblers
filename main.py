@@ -64,13 +64,13 @@ def limit_2(which_piece):#두개씩만 놓을 수 있게 개수 제한
         for i in range(0,3):
             for j in range(0,3):
                 if array[i][j][which_piece] == 1:
-                    sum = sum + 1                
+                    sum +=1              
     else:
         for i in range(0,3):
             for j in range(0,3):
                 if array[i][j][which_piece] == 2:
-                    sum = sum + 1
-    if sum < 2:
+                    sum +=1
+    if sum < 2:#두개 놓여있으면 False 리턴
         return True
     else:
         return False
@@ -267,8 +267,8 @@ def user_click(which_piece):
         return
     # 만약 얻은 행, 열에 말을 놓을 수 있다면 말을 놓는다!
     
-    if array[col][row][which_piece] == 0:
-        if which_piece == 0:
+    if array[col][row][which_piece] == 0:#놓을 자리가 비어있는지 여부
+        if which_piece == 0:#작은것 놓으려할때
             if (array[col][row][1]==0) and (array[col][row][2]==0):
                 if limit_2(which_piece) == True:
                     if player=='P1':
@@ -282,7 +282,7 @@ def user_click(which_piece):
             else:
                 choice = False
                 init_game_window()                
-        elif which_piece == 1:
+        elif which_piece == 1:#중간것 놓으려 할때
             if array[col][row][2]==0:
                 if limit_2(which_piece) == True:
                     if player=='P1':
@@ -296,7 +296,7 @@ def user_click(which_piece):
             else:
                 choice = False
                 init_game_window()
-        else:
+        else:#큰거 놓으려 할때
             if limit_2(which_piece) == True:
                 if player=='P1':
                     array[col][row][which_piece]=1
