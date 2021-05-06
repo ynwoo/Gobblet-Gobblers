@@ -27,6 +27,10 @@ choice = False
 #처음인지 여부
 first = True
 
+biggest = -1
+col_1 = None
+row_1 = None
+ch = 0
 #게임 진행을 위한 이중배열
 #player에 따라 1,2 비어있으면 0
 #깊이가 종류를 표현
@@ -46,6 +50,7 @@ pygame.display.set_caption("Gobblet Gobblers")  # 만든 윈도우창에 이름�
 # 이미지 불러오기
 p1_piece_img = pygame.image.load("p1_icon.png")
 p2_piece_img = pygame.image.load("p2_icon.png")
+empty_img = pygame.image.load("NULL.png")
 
 # 이미지 스케일링
 p1_large_piece_img = pygame.transform.scale(p1_piece_img, (60, 60))
@@ -55,7 +60,7 @@ p1_small_piece_img = pygame.transform.scale(p1_piece_img, (20, 20))
 p2_large_piece_img = pygame.transform.scale(p2_piece_img, (60, 60))
 p2_medium_piece_img = pygame.transform.scale(p2_piece_img, (40, 40))
 p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
-
+empty_img = pygame.transform.scale(empty_img, (60,60))
 def limit_2(which_piece):#두개씩만 놓을 수 있게 개수 제한
     global player
     global array
@@ -144,6 +149,23 @@ def draw_status():
 def end_check():
     draw_status()
 
+def draw_empty(row,col): #지우기 대신 흰색 덮어 씌우기
+    if row != 4:
+        if row == 0:
+            posx = height * 3 / 12
+        if row == 1:
+            posx = height * 5 / 12
+        if row == 2:
+            posx = height * 7 / 12
+
+        if col == 0:
+            posy = width / 6
+        if col == 1:
+            posy = width / 2
+        if col == 2:
+            posy = width / 6 * 5
+    screen.blit(empty_img, (posy-30, posx-30))
+    pygame.display.update()
 
 # 해당하는 위치에 아이콘 그리기
 def drawIcon(row, col, which_icon):
@@ -195,7 +217,10 @@ def select_piece():
     if player == 'P1':
         if y > 100:  # 선택안하면 진행 X
             choice = False
-            return None
+            if(y<(height * 4) / 6):
+                change(x,y)
+            else:
+                return None
         elif 0 < x < (width / 3):
             screen.fill((45, 180, 0), (0, 0, width / 3, height / 6))
             choice = True
@@ -212,7 +237,10 @@ def select_piece():
     elif player == 'P2':
         if (((height * 4) / 6) > y) or (y > ((height * 5) / 6)):
             choice = False
-            return None
+            if (y<(height * 4) / 6) and (y>100):
+                change(x,y)
+            else:
+                return None
         elif 0 < x < (width / 3):
             screen.fill((45, 180, 0), (0, ((height * 4) / 6), width / 3, height / 6))
             choice = True
@@ -314,6 +342,115 @@ def user_click(which_piece):
     
     end_check()
 
+def change(x,y): #옮기기
+    global col_1
+    global row_1
+    global array
+    global biggest
+    global ch
+    
+    
+    # 마우스 클릭의 열을 저장
+    if x < width / 3:
+        col_1 = 0
+
+    elif x < width / 3 * 2:
+        col_1 = 1
+
+    elif x < width:
+        col_1 = 2
+
+    # 마우스 클릭의 행을 저장
+    if height / 3 > y > height / 6:
+        row_1 = 0
+
+    elif height / 2 > y > height / 3:
+        row_1 = 1
+
+    elif height / 3 * 2 > y > height / 2:
+        row_1 = 2
+
+    for i in range(0,3):
+        if array[col_1][row_1][2-i] != 0:
+            biggest = 2-i
+            break
+    
+    if biggest == -1: #옮길것 없을때
+        return None
+    print(biggest)
+    ch = 1
+    
+def chane2():
+    global biggest
+    global col_1
+    global row_1
+    global array
+    global ch
+    col_2 = None
+    row_2 = None
+
+    x, y = pygame.mouse.get_pos()#옮길 곳
+
+    if x < width / 3:
+        col_2 = 0
+
+    elif x < width / 3 * 2:
+        col_2 = 1
+
+    elif x < width:
+        col_2 = 2
+
+    # 마우스 클릭의 행을 저장
+    if height / 3 > y > height / 6:
+        row_2 = 0
+
+    elif height / 2 > y > height / 3:
+        row_2 = 1
+
+    elif height / 3 * 2 > y > height / 2:
+        row_2 = 2
+    
+    if array[col_2][row_2][biggest] != 0:#옮길곳에 이미 같은 크기가 있을때
+        ch = 0
+        return None
+
+    elif biggest == 0:
+        if (array[col_2][row_2][1] != 0) or (array[col_2][row_2][2] != 0):
+            ch = 0
+            return None
+        else:
+            drawIcon(row_2,col_2,biggest)
+            array[col_1][row_1][biggest] = 0
+            draw_empty(row_1,col_1)
+
+    elif biggest == 1:
+        if array[col_2][row_2][2] !=0:
+            ch = 0
+            return None
+        else:
+            if array[col_1][row_1][0] != 0:
+                draw_empty(row_1,col_1)
+                array[col_1][row_1][biggest] = 0
+                drawIcon(row_1,col_1,0)
+            else:
+                draw_empty(row_1,col_1)
+                array[col_1][row_1][biggest] = 0
+            drawIcon(row_2,col_2,biggest)
+
+    else:
+        if array[col_1][row_1][1] != 0:
+            draw_empty(row_1,col_1)
+            array[col_1][row_1][biggest] = 0
+            drawIcon(row_1,col_1,1)
+        elif array[col_1][row_1][0] != 0:
+            draw_empty(row_1,col_1)
+            array[col_1][row_1][biggest] = 0
+            drawIcon(row_1,col_1,0)
+        else:
+            draw_empty(row_1,col_1)
+            array[col_1][row_1][biggest] = 0
+        drawIcon(row_2,col_2,biggest)
+    ch = 0
 
 
 
@@ -350,9 +487,12 @@ def main():  # 메인함수
             # 마우스 클릭하면
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if not choice:
+                    if ch == 0:
                     # 1. 놓을 말을 선택(선택했다면 그 말의 정보를 리턴할 것이고 그 리턴한 값을 user_click()에 인자로 넣음.)
-                    which_piece = select_piece()  # which_piece = 어디를 클릭했는지에 따라 반환을 다르게 하는 함수
+                        which_piece = select_piece()  # which_piece = 어디를 클릭했는지에 따라 반환을 다르게 하는 함수
                     #print(which_piece)
+                    else:
+                        chane2()
                 else:
                     # 2. 놓을 위치 선택
                     user_click(which_piece)  # 인자로 0, 1, 2(작은 말, 중간 말, 큰 말)
