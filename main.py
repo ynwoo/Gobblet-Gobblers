@@ -31,7 +31,7 @@ biggest = -1
 col_1 = None
 row_1 = None
 ch = 0
-#게임 진행을 위한 이중배열
+#게임 진행을 위한 삼중배열
 #player에 따라 1,2 비어있으면 0
 #깊이가 종류를 표현
 array = np.arange(27).reshape(3,3,3)
@@ -61,6 +61,7 @@ p2_large_piece_img = pygame.transform.scale(p2_piece_img, (60, 60))
 p2_medium_piece_img = pygame.transform.scale(p2_piece_img, (40, 40))
 p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
 empty_img = pygame.transform.scale(empty_img, (60,60))
+
 def limit_2(which_piece):#두개씩만 놓을 수 있게 개수 제한
     global player
     global array
@@ -169,8 +170,10 @@ def draw_empty(row,col): #지우기 대신 흰색 덮어 씌우기
 
 # 해당하는 위치에 아이콘 그리기
 def drawIcon(row, col, which_icon):
+    print("drawIcon")
     global player
     global choice
+    global ch
     # print(row, col)
     if row != 4:
         if row == 0:
@@ -194,7 +197,8 @@ def drawIcon(row, col, which_icon):
                 screen.blit(p1_medium_piece_img, (posy-20, posx-20))
             else:  # which_icon == 2
                 screen.blit(p1_large_piece_img, (posy-30, posx-30))
-            player = 'P1'
+            if ch == 0:
+                player = 'P1'
         else:
             if which_icon == 0:
                 screen.blit(p2_small_piece_img, (posy-10, posx-10))
@@ -202,7 +206,8 @@ def drawIcon(row, col, which_icon):
                 screen.blit(p2_medium_piece_img, (posy-20, posx-20))
             else:  # which_icon == 2
                 screen.blit(p2_large_piece_img, (posy-30, posx-30))
-            player = 'P2'
+            if ch == 0:
+                player = 'P2'
     choice = False
     init_game_window()
     pygame.display.update()
@@ -210,6 +215,7 @@ def drawIcon(row, col, which_icon):
 
 # 사용자 마우스 클릭에서 말을 선택하는 입력을 얻기 위한 함수
 def select_piece():
+    print("select piece")
     global choice
     # 마우스 클릭 좌표
     x, y = pygame.mouse.get_pos()
@@ -260,6 +266,7 @@ def select_piece():
 
 # 사용자 마우스 클릭에서 입력을 얻기 위해 설계한 함수
 def user_click(which_piece):
+    print("userclick")
     global choice
     global array
     # 어떤 말인지, 크기에 대한 정보가 없으면
@@ -343,12 +350,13 @@ def user_click(which_piece):
     end_check()
 
 def change(x,y): #옮기기
+    print("change")
     global col_1
     global row_1
     global array
     global biggest
     global ch
-    
+    global player
     
     # 마우스 클릭의 열을 저장
     if x < width / 3:
@@ -374,18 +382,27 @@ def change(x,y): #옮기기
         if array[col_1][row_1][2-i] != 0:
             biggest = 2-i
             break
-    
+    if player == 'P1':
+        if array[col_1][row_1][biggest] == 2:
+            print("리턴함P1인데 p2건드림")
+            return None
+    else:
+        if array[col_1][row_1][biggest] == 1:
+            print("리턴함P2인데 p1건드림")
+            return None
     if biggest == -1: #옮길것 없을때
         return None
-    print(biggest)
+    #print(biggest)
     ch = 1
-    
+
 def chane2():
+    print("change2")
     global biggest
     global col_1
     global row_1
     global array
     global ch
+    global player
     col_2 = None
     row_2 = None
 
@@ -420,6 +437,11 @@ def chane2():
             return None
         else:
             drawIcon(row_2,col_2,biggest)
+            if player == 'P1':
+                array[col_2][row_2][biggest] = 1
+            else:
+                array[col_2][row_2][biggest] = 2
+            
             array[col_1][row_1][biggest] = 0
             draw_empty(row_1,col_1)
 
@@ -428,16 +450,33 @@ def chane2():
             ch = 0
             return None
         else:
+            drawIcon(row_2,col_2,biggest)
+            
+            if player == 'P1':
+                array[col_2][row_2][biggest] = 1
+                player = 'P2'
+            else:
+                array[col_2][row_2][biggest] = 2
+                player = 'P1'
+
             if array[col_1][row_1][0] != 0:
                 draw_empty(row_1,col_1)
                 array[col_1][row_1][biggest] = 0
                 drawIcon(row_1,col_1,0)
             else:
                 draw_empty(row_1,col_1)
-                array[col_1][row_1][biggest] = 0
-            drawIcon(row_2,col_2,biggest)
+                array[col_1][row_1][biggest] = 0            
 
     else:
+        drawIcon(row_2,col_2,biggest)
+
+        if player == 'P1':
+            array[col_2][row_2][biggest] = 1
+            player = 'P2'
+        else:
+            array[col_2][row_2][biggest] = 2
+            player = 'P1'
+
         if array[col_1][row_1][1] != 0:
             draw_empty(row_1,col_1)
             array[col_1][row_1][biggest] = 0
@@ -448,8 +487,7 @@ def chane2():
             drawIcon(row_1,col_1,0)
         else:
             draw_empty(row_1,col_1)
-            array[col_1][row_1][biggest] = 0
-        drawIcon(row_2,col_2,biggest)
+            array[col_1][row_1][biggest] = 0        
     ch = 0
 
 
