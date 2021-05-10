@@ -1,4 +1,6 @@
 import sys  # sys 패키지 임포트
+import time
+
 import pygame  # 파이게임 패키지 임포트
 import numpy as np
 from pygame.locals import QUIT  # 파이게임의 기능 중 종료를 임포트
@@ -11,34 +13,29 @@ player = 'P1'
 winner = None
 # 게임이 비겼는지 체크
 draw = None
-
 # game window창의 크기 값 설정
 width = 400
 height = 600
-
 # 배경화면 색
 white = (255, 255, 255)
 # 선 색
 line_color = (0, 0, 0)
-
 # 말을 선택한 상태인지 표시
 choice = False
-
 #처음인지 여부
 first = True
-
 biggest = -1
 col_1 = None
 row_1 = None
 ch = 0
-#게임 진행을 위한 삼중배열
-#player에 따라 1,2 비어있으면 0
-#깊이가 종류를 표현
+# 게임 진행을 위한 삼중배열
+# player에 따라 1,2 비어있으면 0
+# 깊이가 종류를 표현
 array = np.arange(27).reshape(3,3,3)
 for i in range(0,3):
     for j in range(0,3):
         for k in range(0,3):
-            array[i][j][k] = 0 
+            array[i][j][k] = 0
 
 
 pygame.init()  # 파이게임 모듈을 초기화
@@ -48,11 +45,13 @@ FPSCLOCK = pygame.time.Clock()  # 설정할 프레임을 저장할 변수
 pygame.display.set_caption("Gobblet Gobblers")  # 만든 윈도우창에 이름을 적는 코드
 
 # 이미지 불러오기
+initiating_window = pygame.image.load("cover.png")
 p1_piece_img = pygame.image.load("p1_icon.png")
 p2_piece_img = pygame.image.load("p2_icon.png")
 empty_img = pygame.image.load("NULL.png")
 
 # 이미지 스케일링
+initiating_window = pygame.transform.scale(initiating_window, (width, height + 100))
 p1_large_piece_img = pygame.transform.scale(p1_piece_img, (60, 60))
 p1_medium_piece_img = pygame.transform.scale(p1_piece_img, (40, 40))
 p1_small_piece_img = pygame.transform.scale(p1_piece_img, (20, 20))
@@ -62,7 +61,8 @@ p2_medium_piece_img = pygame.transform.scale(p2_piece_img, (40, 40))
 p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
 empty_img = pygame.transform.scale(empty_img, (60,60))
 
-def limit_2(which_piece):#두개씩만 놓을 수 있게 개수 제한
+
+def limit_2(which_piece):  # 두개씩만 놓을 수 있게 개수 제한
     global player
     global array
     sum = 0
@@ -80,13 +80,14 @@ def limit_2(which_piece):#두개씩만 놓을 수 있게 개수 제한
         return True
     else:
         return False
-    
+
+
 # 말의 이미지 불러오기(추가)
 def init_game_window():
     global first
-    if first is True:#처음이후 화면변화에는 채우기 제외
-        screen.fill(white)  # 배경 색
-        first = False
+    # if first is True:#처음이후 화면변화에는 채우기 제외
+    #     screen.fill(white)  # 배경 색
+    #     first = False
 
     screen.fill((255, 255, 0), (0, 0, width, 100))
     screen.fill((255, 255, 0), (0, 400, width, 500))  # 조각선택란 색상 임의 변경
@@ -146,9 +147,59 @@ def draw_status():
     pygame.display.update()
 
 
+def copy_real_to_vision(array):
+    board_v = np.zeros(9)
+    for k in range(3):
+        for i in range(3):
+            for j in range(3):
+                if array[j][i][k] == 1:
+                    board_v[3 * i + j] = 1
+                elif array[j][i][k] == 2:
+                    board_v[3 * i + j] = -1
+
+    return board_v
+
+
 # 게임이 종료됐는지 판단
 def end_check():
+    global array, winner, draw
+
+    board_v = copy_real_to_vision(array)
+    # 0 1 2
+    # 3 4 5
+    # 6 7 8
+    # 승패 조건은 가로, 세로, 대각선이 -1이나 1로 동일할 때
+    # 승패 조건 생성
+    end_condition = ((0, 1, 2), (3, 4, 5), (6, 7, 8), (0, 3, 6), (1, 4, 7), (2, 5, 8), (0, 4, 8), (2, 4, 6))
+
+    # 이긴사람의 수 카운트 -> 두명 다 라인을 완성할 경우 비기므로
+    p1_cnt = 0
+    p2_cnt = 0
+    # 승리 판별
+    for line in end_condition:
+        if board_v[line[0]] == board_v[line[1]] and \
+                board_v[line[1]] == board_v[line[2]] and \
+                board_v[line[0]] == 1:  # 플레이어1 이 이겼다면
+            # 종료됐다면 누가 이겼는지 표시
+            done = True
+            reward = 1
+            winner = 'P1'
+            p1_cnt += 1
+        if board_v[line[0]] == board_v[line[1]] and \
+                board_v[line[1]] == board_v[line[2]] and \
+                board_v[line[0]] == -1:  # 플레이어2 이 이겼다면
+            # 종료됐다면 누가 이겼는지 표시
+            done = True
+            reward = -1
+            winner = 'P2'
+            p2_cnt += 1
+
+    # 비긴 상태. 양쪽 모두 승리 조건을 동시에 만족하는 경우.
+    if p1_cnt >= 1 and p2_cnt >= 1:
+        draw = True
+        reward = 0
     draw_status()
+
 
 def draw_empty(row,col): #지우기 대신 흰색 덮어 씌우기
     if row != 4:
@@ -167,6 +218,7 @@ def draw_empty(row,col): #지우기 대신 흰색 덮어 씌우기
             posy = width / 6 * 5
     screen.blit(empty_img, (posy-30, posx-30))
     pygame.display.update()
+
 
 # 해당하는 위치에 아이콘 그리기
 def drawIcon(row, col, which_icon):
@@ -393,7 +445,9 @@ def change(x,y): #옮기기
     if biggest == -1: #옮길것 없을때
         return None
     #print(biggest)
+
     ch = 1
+    end_check()
 
 def chane2():
     print("change2")
@@ -487,32 +541,67 @@ def chane2():
             drawIcon(row_1,col_1,0)
         else:
             draw_empty(row_1,col_1)
-            array[col_1][row_1][biggest] = 0        
-    ch = 0
+            array[col_1][row_1][biggest] = 0
 
+    ch = 0
+    end_check()
+
+
+def reset_game():
+    global array, winner, player, draw
+    time.sleep(3)
+    player = 'P1'
+    draw = False
+    winner = None
+    new_game_window()
+    array = np.arange(27).reshape(3, 3, 3)
+    for i in range(0, 3):
+        for j in range(0, 3):
+            for k in range(0, 3):
+                array[i][j][k] = 0
+
+
+def new_game_window():
+    screen.blit(initiating_window, (0, 0))
+    pygame.display.update()
+    time.sleep(3)
+    screen.fill(white)
+    screen.fill((255, 255, 0), (0, 0, width, 100))
+    screen.fill((255, 255, 0), (0, 400, width, 500))  # 조각선택란 색상 임의 변경
+
+    # 세로줄 그리기.. pygame.draw.line(화면, 색, 시작위치, 끝위치, 굵기)
+    pygame.draw.line(screen, line_color, (width / 3, 0), (width / 3, height - (height / 6)), 5)  # 화면, 색, 시작위치, 끝위치, 굵기
+    pygame.draw.line(screen, line_color, (width / 3 * 2, 0), (width / 3 * 2, height - (height / 6)), 5)
+
+    # 가로줄 그리기
+    pygame.draw.line(screen, line_color, (0, 0), (width, 0), 5)
+    pygame.draw.line(screen, line_color, (0, height / 6), (width, height / 6), 5)
+    pygame.draw.line(screen, line_color, (0, height / 3), (width, height / 3), 5)
+    pygame.draw.line(screen, line_color, (0, height / 2), (width, height / 2), 5)
+    pygame.draw.line(screen, line_color, (0, height / 3 * 2), (width, height / 3 * 2), 5)
+    pygame.draw.line(screen, line_color, (0, height / 6 * 5), (width, height / 6 * 5), 5)
+
+    # 말을 두개씩 객체 생성
+    screen.blit(p2_small_piece_img, (40, 40))
+    screen.blit(p2_small_piece_img, (70, 40))
+    screen.blit(p2_medium_piece_img, (155, 30))
+    screen.blit(p2_medium_piece_img, (205, 30))
+    screen.blit(p2_large_piece_img, (275, 20))
+    screen.blit(p2_large_piece_img, (335, 20))
+
+    # 말을 두개씩
+    screen.blit(p1_small_piece_img, (40, 40 + 400))
+    screen.blit(p1_small_piece_img, (70, 40 + 400))
+    screen.blit(p1_medium_piece_img, (155, 30 + 400))
+    screen.blit(p1_medium_piece_img, (205, 30 + 400))
+    screen.blit(p1_large_piece_img, (275, 20 + 400))
+    screen.blit(p1_large_piece_img, (335, 20 + 400))
+    draw_status()
 
 
 def main():  # 메인함수
-    init_game_window()  # 화면 초기화
-
-    # p1 = Human_player()  # 플레이어 설정
-    # p2 = Human_player()
-
-    # 지정된 게임 수를 자동으로 두게 할 것인지 한 게임씩 두게 할 것인지 결정
-    # auto = True: 지정된 판 수(games)를 자동으로 진행
-    # auto = False: 한 게임씩 진행
-
-    auto = False
-
-    # auto 모드의 게임 수
-    games = 100
-    # print("p1 player : {}".format(p1.name))
-    # print("p2 player : {}".format(p2.name))
-
-    # 각 플레이어의 승리 횟수를 저장
-    p1_score = 0
-    p2_score = 0
-    draw_score = 0
+    # init_game_window()
+    new_game_window()  # 화면 초기화
 
     while True:  # 화면을 계속 띄우기 위해
         for event in pygame.event.get():  # 이벤트를 가지고 와서
@@ -526,14 +615,18 @@ def main():  # 메인함수
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if not choice:
                     if ch == 0:
-                    # 1. 놓을 말을 선택(선택했다면 그 말의 정보를 리턴할 것이고 그 리턴한 값을 user_click()에 인자로 넣음.)
+                        # 1. 놓을 말을 선택(선택했다면 그 말의 정보를 리턴할 것이고 그 리턴한 값을 user_click()에 인자로 넣음.)
                         which_piece = select_piece()  # which_piece = 어디를 클릭했는지에 따라 반환을 다르게 하는 함수
-                    #print(which_piece)
+
                     else:
                         chane2()
+                        if winner or draw:
+                            reset_game()
                 else:
                     # 2. 놓을 위치 선택
                     user_click(which_piece)  # 인자로 0, 1, 2(작은 말, 중간 말, 큰 말)
+                    if winner or draw:
+                        reset_game()
                 # 3. 둘다 아니라면 무시
 
         pygame.display.update()  # 지금까지 작성한 코드를 윈도우 창에 표시해주겠다는 업데이트(필수!)
