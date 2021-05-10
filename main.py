@@ -493,9 +493,10 @@ def chane2():
             drawIcon(row_2,col_2,biggest)
             if player == 'P1':
                 array[col_2][row_2][biggest] = 1
+                player = 'P2'
             else:
                 array[col_2][row_2][biggest] = 2
-            
+                player = 'P1'
             array[col_1][row_1][biggest] = 0
             draw_empty(row_1,col_1)
 
@@ -564,7 +565,7 @@ def reset_game():
 def new_game_window():
     screen.blit(initiating_window, (0, 0))
     pygame.display.update()
-    time.sleep(3)
+    time.sleep(2)
     screen.fill(white)
     screen.fill((255, 255, 0), (0, 0, width, 100))
     screen.fill((255, 255, 0), (0, 400, width, 500))  # 조각선택란 색상 임의 변경
