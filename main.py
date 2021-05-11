@@ -69,12 +69,12 @@ def limit_2(which_piece):  # 두개씩만 놓을 수 있게 개수 제한
     if player == 'P1':
         for i in range(0,3):
             for j in range(0,3):
-                if array[i][j][which_piece] == 1:
+                if array[which_piece][i][j] == 1:
                     sum +=1              
     else:
         for i in range(0,3):
             for j in range(0,3):
-                if array[i][j][which_piece] == 2:
+                if array[which_piece][i][j] == 2:
                     sum +=1
     if sum < 2:#두개 놓여있으면 False 리턴
         return True
@@ -147,15 +147,15 @@ def draw_status():
     pygame.display.update()
 
 
-def copy_real_to_vision(array):
+def copy_real_to_vision(array):#j->k,i->j,k->i
     board_v = np.zeros(9)
-    for k in range(3):
-        for i in range(3):
-            for j in range(3):
-                if array[j][i][k] == 1:
-                    board_v[3 * i + j] = 1
-                elif array[j][i][k] == 2:
-                    board_v[3 * i + j] = -1
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                if array[k][j][i] == 1:
+                    board_v[3 * j + k] = 1
+                elif array[k][j][i] == 2:
+                    board_v[3 * j + k] = -1
 
     return board_v
 
@@ -354,14 +354,14 @@ def user_click(which_piece):
         return
     # 만약 얻은 행, 열에 말을 놓을 수 있다면 말을 놓는다!
     
-    if array[col][row][which_piece] == 0:#놓을 자리가 비어있는지 여부
+    if array[which_piece][col][row] == 0:#놓을 자리가 비어있는지 여부
         if which_piece == 0:#작은것 놓으려할때
-            if (array[col][row][1]==0) and (array[col][row][2]==0):
+            if (array[1][col][row]==0) and (array[2][col][row]==0):
                 if limit_2(which_piece) == True:
                     if player=='P1':
-                        array[col][row][which_piece]=1
+                        array[which_piece][col][row]=1
                     else:
-                        array[col][row][which_piece]=2
+                        array[which_piece][col][row]=2
                     drawIcon(row,col,which_piece)
                 else:
                     choice = False
@@ -370,12 +370,12 @@ def user_click(which_piece):
                 choice = False
                 init_game_window()                
         elif which_piece == 1:#중간것 놓으려 할때
-            if array[col][row][2]==0:
+            if array[2][col][row]==0:
                 if limit_2(which_piece) == True:
                     if player=='P1':
-                        array[col][row][which_piece]=1
+                        array[which_piece][col][row]=1
                     else:
-                        array[col][row][which_piece]=2
+                        array[which_piece][col][row]=2
                     drawIcon(row,col,which_piece)
                 else:
                     choice = False
@@ -386,9 +386,9 @@ def user_click(which_piece):
         else:#큰거 놓으려 할때
             if limit_2(which_piece) == True:
                 if player=='P1':
-                    array[col][row][which_piece]=1
+                    array[which_piece][col][row]=1
                 else:
-                    array[col][row][which_piece]=2
+                    array[which_piece][col][row]=2
                 drawIcon(row,col,which_piece)
             else:
                 choice = False
@@ -431,15 +431,15 @@ def change(x,y): #옮기기
         row_1 = 2
 
     for i in range(0,3):
-        if array[col_1][row_1][2-i] != 0:
+        if array[2-i][col_1][row_1] != 0:
             biggest = 2-i
             break
     if player == 'P1':
-        if array[col_1][row_1][biggest] == 2:
+        if array[biggest][col_1][row_1] == 2:
             print("리턴함P1인데 p2건드림")
             return None
     else:
-        if array[col_1][row_1][biggest] == 1:
+        if array[biggest][col_1][row_1] == 1:
             print("리턴함P2인데 p1건드림")
             return None
     if biggest == -1: #옮길것 없을때
@@ -481,68 +481,68 @@ def chane2():
     elif height / 3 * 2 > y > height / 2:
         row_2 = 2
     
-    if array[col_2][row_2][biggest] != 0:#옮길곳에 이미 같은 크기가 있을때
+    if array[biggest][col_2][row_2] != 0:#옮길곳에 이미 같은 크기가 있을때
         ch = 0
         return None
 
     elif biggest == 0:
-        if (array[col_2][row_2][1] != 0) or (array[col_2][row_2][2] != 0):
+        if (array[1][col_2][row_2] != 0) or (array[2][col_2][row_2] != 0):
             ch = 0
             return None
         else:
             drawIcon(row_2,col_2,biggest)
             if player == 'P1':
-                array[col_2][row_2][biggest] = 1
+                array[biggest][col_2][row_2] = 1
                 player = 'P2'
             else:
-                array[col_2][row_2][biggest] = 2
+                array[biggest][col_2][row_2] = 2
                 player = 'P1'
-            array[col_1][row_1][biggest] = 0
+            array[biggest][col_1][row_1] = 0
             draw_empty(row_1,col_1)
 
     elif biggest == 1:
-        if array[col_2][row_2][2] !=0:
+        if array[2][col_2][row_2] !=0:
             ch = 0
             return None
         else:
             drawIcon(row_2,col_2,biggest)
             
             if player == 'P1':
-                array[col_2][row_2][biggest] = 1
+                array[biggest][col_2][row_2] = 1
                 player = 'P2'
             else:
-                array[col_2][row_2][biggest] = 2
+                array[biggest][col_2][row_2] = 2
                 player = 'P1'
 
-            if array[col_1][row_1][0] != 0:
+            if array[0][col_1][row_1] != 0:
                 draw_empty(row_1,col_1)
-                array[col_1][row_1][biggest] = 0
+                array[biggest][col_1][row_1] = 0
                 drawIcon(row_1,col_1,0)
             else:
                 draw_empty(row_1,col_1)
-                array[col_1][row_1][biggest] = 0            
+                array[biggest][col_1][row_1] = 0            
 
     else:
         drawIcon(row_2,col_2,biggest)
 
         if player == 'P1':
-            array[col_2][row_2][biggest] = 1
+            array[biggest][col_2][row_2] = 1
             player = 'P2'
         else:
-            array[col_2][row_2][biggest] = 2
+            array[biggest][col_2][row_2] = 2
             player = 'P1'
 
-        if array[col_1][row_1][1] != 0:
+        if array[1][col_1][row_1] != 0:
             draw_empty(row_1,col_1)
-            array[col_1][row_1][biggest] = 0
+            array[biggest][col_1][row_1] = 0
             drawIcon(row_1,col_1,1)
-        elif array[col_1][row_1][0] != 0:
+        elif array[0][col_1][row_1] != 0:
             draw_empty(row_1,col_1)
-            array[col_1][row_1][biggest] = 0
+            array[biggest][col_1][row_1] = 0
             drawIcon(row_1,col_1,0)
         else:
             draw_empty(row_1,col_1)
-            array[col_1][row_1][biggest] = 0
+            array[biggest][col_1][row_1] = 0
 
     ch = 0
     end_check()
