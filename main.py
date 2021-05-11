@@ -22,14 +22,13 @@ white = (255, 255, 255)
 line_color = (0, 0, 0)
 # 말을 선택한 상태인지 표시
 choice = False
-# 처음인지 여부
-first = True
 biggest = -1
 col_1 = None
 row_1 = None
 ch = 0
+turn_end = False
 # 게임 진행을 위한 삼중배열
-# player에 따라 1,2 비어있으면 0
+# player에 따라 1,-1 비어있으면 0
 # 깊이가 종류를 표현
 array = np.arange(27).reshape(3, 3, 3)
 for i in range(0, 3):
@@ -83,11 +82,6 @@ def limit_2(which_piece):  # 두개씩만 놓을 수 있게 개수 제한
 
 # 말의 이미지 불러오기(추가)
 def init_game_window():
-    global first
-    # if first is True:#처음이후 화면변화에는 채우기 제외
-    #     screen.fill(white)  # 배경 색
-    #     first = False
-
     screen.fill((255, 255, 0), (0, 0, width, 100))
     screen.fill((255, 255, 0), (0, 400, width, 500))  # 조각선택란 색상 임의 변경
 
@@ -255,8 +249,7 @@ def drawIcon(row, col, which_icon):
                 screen.blit(p1_medium_piece_img, (posy - 20, posx - 20))
             else:  # which_icon == 2
                 screen.blit(p1_large_piece_img, (posy - 30, posx - 30))
-            if ch == 0:
-                player = 'P1'
+
         else:
             if which_icon == 0:
                 screen.blit(p2_small_piece_img, (posy - 10, posx - 10))
@@ -264,20 +257,17 @@ def drawIcon(row, col, which_icon):
                 screen.blit(p2_medium_piece_img, (posy - 20, posx - 20))
             else:  # which_icon == 2
                 screen.blit(p2_large_piece_img, (posy - 30, posx - 30))
-            if ch == 0:
-                player = 'P2'
+
     choice = False
     init_game_window()
     pygame.display.update()
 
 
 # 사용자 마우스 클릭에서 말을 선택하는 입력을 얻기 위한 함수
-def select_piece():
+def select_piece(x,y):
     print("select piece")
     global choice
     # 마우스 클릭 좌표
-    x, y = pygame.mouse.get_pos()
-
     if player == 'P1':
         if y > 100:  # 선택안하면 진행 X
             choice = False
@@ -286,6 +276,7 @@ def select_piece():
             else:
                 return None
         elif 0 < x < (width / 3):
+            print("!@#213123123")
             screen.fill((45, 180, 0), (0, 0, width / 3, height / 6))
             choice = True
             return 0
@@ -327,6 +318,7 @@ def user_click(which_piece):
     print("userclick")
     global choice
     global array
+    global turn_end
     # 어떤 말인지, 크기에 대한 정보가 없으면
     if which_piece is None:
         return
@@ -369,6 +361,8 @@ def user_click(which_piece):
                     else:
                         array[which_piece][col][row] = -1
                     drawIcon(row, col, which_piece)
+                    turn_end = True
+
                 else:
                     choice = False
                     init_game_window()
@@ -383,6 +377,7 @@ def user_click(which_piece):
                     else:
                         array[which_piece][col][row] = -1
                     drawIcon(row, col, which_piece)
+                    turn_end = True
                 else:
                     choice = False
                     init_game_window()
@@ -396,6 +391,7 @@ def user_click(which_piece):
                 else:
                     array[which_piece][col][row] = -1
                 drawIcon(row, col, which_piece)
+                turn_end = True
             else:
                 choice = False
                 init_game_window()
@@ -457,7 +453,7 @@ def change(x, y):  # 옮기기
     end_check()
 
 
-def chane2():
+def change2():
     print("change2")
     global biggest
     global col_1
@@ -465,6 +461,7 @@ def chane2():
     global array
     global ch
     global player
+    global turn_end
     col_2 = None
     row_2 = None
 
@@ -499,12 +496,11 @@ def chane2():
             return None
         else:
             drawIcon(row_2, col_2, biggest)
+            turn_end = True
             if player == 'P1':
                 array[biggest][col_2][row_2] = 1
-                player = 'P2'
             else:
                 array[biggest][col_2][row_2] = -1
-                player = 'P1'
             array[biggest][col_1][row_1] = 0
             draw_empty(row_1, col_1)
 
@@ -514,13 +510,11 @@ def chane2():
             return None
         else:
             drawIcon(row_2, col_2, biggest)
-
+            turn_end = True
             if player == 'P1':
                 array[biggest][col_2][row_2] = 1
-                player = 'P2'
             else:
                 array[biggest][col_2][row_2] = -1
-                player = 'P1'
 
             if array[0][col_1][row_1] != 0:
                 draw_empty(row_1, col_1)
@@ -532,13 +526,11 @@ def chane2():
 
     else:
         drawIcon(row_2, col_2, biggest)
-
+        turn_end = True
         if player == 'P1':
             array[biggest][col_2][row_2] = 1
-            player = 'P2'
         else:
             array[biggest][col_2][row_2] = -1
-            player = 'P1'
 
         if array[1][col_1][row_1] != 0:
             draw_empty(row_1, col_1)
@@ -575,69 +567,72 @@ def new_game_window():
     pygame.display.update()
     time.sleep(2)
     screen.fill(white)
-    screen.fill((255, 255, 0), (0, 0, width, 100))
-    screen.fill((255, 255, 0), (0, 400, width, 500))  # 조각선택란 색상 임의 변경
-
-    # 세로줄 그리기.. pygame.draw.line(화면, 색, 시작위치, 끝위치, 굵기)
-    pygame.draw.line(screen, line_color, (width / 3, 0), (width / 3, height - (height / 6)), 5)  # 화면, 색, 시작위치, 끝위치, 굵기
-    pygame.draw.line(screen, line_color, (width / 3 * 2, 0), (width / 3 * 2, height - (height / 6)), 5)
-
-    # 가로줄 그리기
-    pygame.draw.line(screen, line_color, (0, 0), (width, 0), 5)
-    pygame.draw.line(screen, line_color, (0, height / 6), (width, height / 6), 5)
-    pygame.draw.line(screen, line_color, (0, height / 3), (width, height / 3), 5)
-    pygame.draw.line(screen, line_color, (0, height / 2), (width, height / 2), 5)
-    pygame.draw.line(screen, line_color, (0, height / 3 * 2), (width, height / 3 * 2), 5)
-    pygame.draw.line(screen, line_color, (0, height / 6 * 5), (width, height / 6 * 5), 5)
-
-    # 말을 두개씩 객체 생성
-    screen.blit(p2_small_piece_img, (40, 40))
-    screen.blit(p2_small_piece_img, (70, 40))
-    screen.blit(p2_medium_piece_img, (155, 30))
-    screen.blit(p2_medium_piece_img, (205, 30))
-    screen.blit(p2_large_piece_img, (275, 20))
-    screen.blit(p2_large_piece_img, (335, 20))
-
-    # 말을 두개씩
-    screen.blit(p1_small_piece_img, (40, 40 + 400))
-    screen.blit(p1_small_piece_img, (70, 40 + 400))
-    screen.blit(p1_medium_piece_img, (155, 30 + 400))
-    screen.blit(p1_medium_piece_img, (205, 30 + 400))
-    screen.blit(p1_large_piece_img, (275, 20 + 400))
-    screen.blit(p1_large_piece_img, (335, 20 + 400))
-    draw_status()
+    init_game_window()
 
 
-def main():  # 메인함수
-    # init_game_window()
-    new_game_window()  # 화면 초기화
-
-    while True:  # 화면을 계속 띄우기 위해
+def Human_player():
+    while True:
         for event in pygame.event.get():  # 이벤트를 가지고 와서
-            # print(event.type)
+            #print(event)
             # 이벤트 타입이 만약 QUIT 이면(종료버튼 누르면)
             if event.type == QUIT:
                 pygame.quit()  # 파이게임 종료
                 sys.exit()  # 시스템 종료(윈도우 화면 종료)
 
             # 마우스 클릭하면
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                # 마우스 클릭 좌표
+                x, y = pygame.mouse.get_pos()
                 if not choice:
                     if ch == 0:
                         # 1. 놓을 말을 선택(선택했다면 그 말의 정보를 리턴할 것이고 그 리턴한 값을 user_click()에 인자로 넣음.)
-                        which_piece = select_piece()  # which_piece = 어디를 클릭했는지에 따라 반환을 다르게 하는 함수
+                        which_piece = select_piece(x, y)  # which_piece = 어디를 클릭했는지에 따라 반환을 다르게 하는 함수
 
                     else:
-                        chane2()
-                        if winner or draw:
-                            reset_game()
+                        change2()
+
+                        # if winner or draw:
+                        #     reset_game()
+                        #     turn = 1
                 else:
                     # 2. 놓을 위치 선택
                     user_click(which_piece)  # 인자로 0, 1, 2(작은 말, 중간 말, 큰 말)
-                    if winner or draw:
-                        reset_game()
+                    # if winner or draw:
+                    #     reset_game()
+                    #     turn = 1
                 # 3. 둘다 아니라면 무시
 
+            if turn_end:
+                return
+        pygame.display.update()  # 지금까지 작성한 코드를 윈도우 창에 표시해주겠다는 업데이트(필수!)
+        FPSCLOCK.tick(fps)  # 몇 프레임으로 해줄지 : 30프레임
+
+
+def main():  # 메인함수
+    new_game_window()  # 화면 초기화
+    global player, turn_end  # player 1P:1p, 2P:2p
+
+    while True:  # 화면을 계속 띄우기 위해
+        if player == "P1":
+            # 1플레이어 두는 곳.
+            Human_player()
+            turn_end = False
+        else:  # turn == -1
+            # 2플레이어 두는 곳.
+            # 인공지능 플레이어 착수
+            print("인공지능 플레이어")
+            Human_player()
+            turn_end = False
+
+        if player == "P1":
+            player = "P2"
+        else:
+            player = "P1"
+
+        if winner or draw:
+            reset_game()
+
+        draw_status()
         pygame.display.update()  # 지금까지 작성한 코드를 윈도우 창에 표시해주겠다는 업데이트(필수!)
         FPSCLOCK.tick(fps)  # 몇 프레임으로 해줄지 : 30프레임
 
