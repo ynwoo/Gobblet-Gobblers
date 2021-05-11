@@ -163,7 +163,7 @@ def copy_real_to_vision(array):
 # 게임이 종료됐는지 판단
 def end_check():
     global array, winner, draw
-
+    print(array)
     board_v = copy_real_to_vision(array)
     # 0 1 2
     # 3 4 5
@@ -276,7 +276,6 @@ def select_piece(x,y):
             else:
                 return None
         elif 0 < x < (width / 3):
-            print("!@#213123123")
             screen.fill((45, 180, 0), (0, 0, width / 3, height / 6))
             choice = True
             return 0
@@ -466,7 +465,6 @@ def change2():
     row_2 = None
 
     x, y = pygame.mouse.get_pos()  # 옮길 곳
-
     if x < width / 3:
         col_2 = 0
 
@@ -587,19 +585,11 @@ def Human_player():
                     if ch == 0:
                         # 1. 놓을 말을 선택(선택했다면 그 말의 정보를 리턴할 것이고 그 리턴한 값을 user_click()에 인자로 넣음.)
                         which_piece = select_piece(x, y)  # which_piece = 어디를 클릭했는지에 따라 반환을 다르게 하는 함수
-
                     else:
                         change2()
-
-                        # if winner or draw:
-                        #     reset_game()
-                        #     turn = 1
                 else:
                     # 2. 놓을 위치 선택
                     user_click(which_piece)  # 인자로 0, 1, 2(작은 말, 중간 말, 큰 말)
-                    # if winner or draw:
-                    #     reset_game()
-                    #     turn = 1
                 # 3. 둘다 아니라면 무시
 
             if turn_end:
