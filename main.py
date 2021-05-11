@@ -147,16 +147,23 @@ def draw_status():
     pygame.display.update()
 
 
-def copy_real_to_vision(array):#j->k,i->j,k->i
+def copy_real_to_vision(array):
+    board_r = array.reshape(27)
     board_v = np.zeros(9)
     for i in range(3):
         for j in range(3):
-            for k in range(3):
-                if array[k][j][i] == 1:
-                    board_v[3 * j + k] = 1
-                elif array[k][j][i] == 2:
-                    board_v[3 * j + k] = -1
-
+            if board_r[3 * i + j + 18] == 1:
+                board_v[3 * i + j] = 1
+            elif board_r[3 * i + j + 18] == -1:
+                board_v[3 * i + j] = -1
+            elif board_r[3 * i + j + 9] == 1:
+                board_v[3 * i + j] = 1
+            elif board_r[3 * i + j + 9] == -1:
+                board_v[3 * i + j] = -1
+            elif board_r[3 * i + j] == 1:
+                board_v[3 * i + j] = 1
+            elif board_r[3 * i + j] == -1:
+                board_v[3 * i + j] = -1
     return board_v
 
 
