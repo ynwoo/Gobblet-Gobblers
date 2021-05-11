@@ -22,7 +22,7 @@ white = (255, 255, 255)
 line_color = (0, 0, 0)
 # 말을 선택한 상태인지 표시
 choice = False
-#처음인지 여부
+# 처음인지 여부
 first = True
 biggest = -1
 col_1 = None
@@ -31,12 +31,11 @@ ch = 0
 # 게임 진행을 위한 삼중배열
 # player에 따라 1,2 비어있으면 0
 # 깊이가 종류를 표현
-array = np.arange(27).reshape(3,3,3)
-for i in range(0,3):
-    for j in range(0,3):
-        for k in range(0,3):
+array = np.arange(27).reshape(3, 3, 3)
+for i in range(0, 3):
+    for j in range(0, 3):
+        for k in range(0, 3):
             array[i][j][k] = 0
-
 
 pygame.init()  # 파이게임 모듈을 초기화
 fps = 30  # fps 설정
@@ -59,7 +58,7 @@ p1_small_piece_img = pygame.transform.scale(p1_piece_img, (20, 20))
 p2_large_piece_img = pygame.transform.scale(p2_piece_img, (60, 60))
 p2_medium_piece_img = pygame.transform.scale(p2_piece_img, (40, 40))
 p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
-empty_img = pygame.transform.scale(empty_img, (60,60))
+empty_img = pygame.transform.scale(empty_img, (60, 60))
 
 
 def limit_2(which_piece):  # 두개씩만 놓을 수 있게 개수 제한
@@ -67,16 +66,16 @@ def limit_2(which_piece):  # 두개씩만 놓을 수 있게 개수 제한
     global array
     sum = 0
     if player == 'P1':
-        for i in range(0,3):
-            for j in range(0,3):
+        for i in range(0, 3):
+            for j in range(0, 3):
                 if array[which_piece][i][j] == 1:
-                    sum +=1              
+                    sum += 1
     else:
-        for i in range(0,3):
-            for j in range(0,3):
-                if array[which_piece][i][j] == 2:
-                    sum +=1
-    if sum < 2:#두개 놓여있으면 False 리턴
+        for i in range(0, 3):
+            for j in range(0, 3):
+                if array[which_piece][i][j] == -1:
+                    sum += 1
+    if sum < 2:  # 두개 놓여있으면 False 리턴
         return True
     else:
         return False
@@ -208,7 +207,7 @@ def end_check():
     draw_status()
 
 
-def draw_empty(row,col): #지우기 대신 흰색 덮어 씌우기
+def draw_empty(row, col):  # 지우기 대신 흰색 덮어 씌우기
     if row != 4:
         if row == 0:
             posx = height * 3 / 12
@@ -223,7 +222,7 @@ def draw_empty(row,col): #지우기 대신 흰색 덮어 씌우기
             posy = width / 2
         if col == 2:
             posy = width / 6 * 5
-    screen.blit(empty_img, (posy-30, posx-30))
+    screen.blit(empty_img, (posy - 30, posx - 30))
     pygame.display.update()
 
 
@@ -251,20 +250,20 @@ def drawIcon(row, col, which_icon):
 
         if player == 'P2':
             if which_icon == 0:
-                screen.blit(p1_small_piece_img, (posy-10, posx-10))
+                screen.blit(p1_small_piece_img, (posy - 10, posx - 10))
             elif which_icon == 1:
-                screen.blit(p1_medium_piece_img, (posy-20, posx-20))
+                screen.blit(p1_medium_piece_img, (posy - 20, posx - 20))
             else:  # which_icon == 2
-                screen.blit(p1_large_piece_img, (posy-30, posx-30))
+                screen.blit(p1_large_piece_img, (posy - 30, posx - 30))
             if ch == 0:
                 player = 'P1'
         else:
             if which_icon == 0:
-                screen.blit(p2_small_piece_img, (posy-10, posx-10))
+                screen.blit(p2_small_piece_img, (posy - 10, posx - 10))
             elif which_icon == 1:
-                screen.blit(p2_medium_piece_img, (posy-20, posx-20))
+                screen.blit(p2_medium_piece_img, (posy - 20, posx - 20))
             else:  # which_icon == 2
-                screen.blit(p2_large_piece_img, (posy-30, posx-30))
+                screen.blit(p2_large_piece_img, (posy - 30, posx - 30))
             if ch == 0:
                 player = 'P2'
     choice = False
@@ -282,8 +281,8 @@ def select_piece():
     if player == 'P1':
         if y > 100:  # 선택안하면 진행 X
             choice = False
-            if(y<(height * 4) / 6):
-                change(x,y)
+            if (y < (height * 4) / 6):
+                change(x, y)
             else:
                 return None
         elif 0 < x < (width / 3):
@@ -302,8 +301,8 @@ def select_piece():
     elif player == 'P2':
         if (((height * 4) / 6) > y) or (y > ((height * 5) / 6)):
             choice = False
-            if (y<(height * 4) / 6) and (y>100):
-                change(x,y)
+            if (y < (height * 4) / 6) and (y > 100):
+                change(x, y)
             else:
                 return None
         elif 0 < x < (width / 3):
@@ -315,7 +314,7 @@ def select_piece():
             choice = True
             return 1
         elif x < width:
-            screen.fill((45, 180, 0), (width / 3 * 2, ((height * 4) / 6), width / 3, height  / 6))
+            screen.fill((45, 180, 0), (width / 3 * 2, ((height * 4) / 6), width / 3, height / 6))
             choice = True
             return 2
 
@@ -334,7 +333,7 @@ def user_click(which_piece):
 
     # 마우스 클릭 좌표
     x, y = pygame.mouse.get_pos()
-    #print(x, y)
+    # print(x, y)
     col = None
     row = None
     # 마우스 클릭의 열을 저장
@@ -357,46 +356,46 @@ def user_click(which_piece):
     elif height / 3 * 2 > y > height / 2:
         row = 2
 
-    if (col == None) or (row == None) :
+    if (col == None) or (row == None):
         return
     # 만약 얻은 행, 열에 말을 놓을 수 있다면 말을 놓는다!
-    
-    if array[which_piece][col][row] == 0:#놓을 자리가 비어있는지 여부
-        if which_piece == 0:#작은것 놓으려할때
-            if (array[1][col][row]==0) and (array[2][col][row]==0):
+
+    if array[which_piece][col][row] == 0:  # 놓을 자리가 비어있는지 여부
+        if which_piece == 0:  # 작은것 놓으려할때
+            if (array[1][col][row] == 0) and (array[2][col][row] == 0):
                 if limit_2(which_piece) == True:
-                    if player=='P1':
-                        array[which_piece][col][row]=1
+                    if player == 'P1':
+                        array[which_piece][col][row] = 1
                     else:
-                        array[which_piece][col][row]=2
-                    drawIcon(row,col,which_piece)
-                else:
-                    choice = False
-                    init_game_window()
-            else:
-                choice = False
-                init_game_window()                
-        elif which_piece == 1:#중간것 놓으려 할때
-            if array[2][col][row]==0:
-                if limit_2(which_piece) == True:
-                    if player=='P1':
-                        array[which_piece][col][row]=1
-                    else:
-                        array[which_piece][col][row]=2
-                    drawIcon(row,col,which_piece)
+                        array[which_piece][col][row] = -1
+                    drawIcon(row, col, which_piece)
                 else:
                     choice = False
                     init_game_window()
             else:
                 choice = False
                 init_game_window()
-        else:#큰거 놓으려 할때
-            if limit_2(which_piece) == True:
-                if player=='P1':
-                    array[which_piece][col][row]=1
+        elif which_piece == 1:  # 중간것 놓으려 할때
+            if array[2][col][row] == 0:
+                if limit_2(which_piece) == True:
+                    if player == 'P1':
+                        array[which_piece][col][row] = 1
+                    else:
+                        array[which_piece][col][row] = -1
+                    drawIcon(row, col, which_piece)
                 else:
-                    array[which_piece][col][row]=2
-                drawIcon(row,col,which_piece)
+                    choice = False
+                    init_game_window()
+            else:
+                choice = False
+                init_game_window()
+        else:  # 큰거 놓으려 할때
+            if limit_2(which_piece) == True:
+                if player == 'P1':
+                    array[which_piece][col][row] = 1
+                else:
+                    array[which_piece][col][row] = -1
+                drawIcon(row, col, which_piece)
             else:
                 choice = False
                 init_game_window()
@@ -405,10 +404,11 @@ def user_click(which_piece):
         init_game_window()
 
     # if ...
-    
+
     end_check()
 
-def change(x,y): #옮기기
+
+def change(x, y):  # 옮기기
     print("change")
     global col_1
     global row_1
@@ -416,7 +416,7 @@ def change(x,y): #옮기기
     global biggest
     global ch
     global player
-    
+
     # 마우스 클릭의 열을 저장
     if x < width / 3:
         col_1 = 0
@@ -437,24 +437,25 @@ def change(x,y): #옮기기
     elif height / 3 * 2 > y > height / 2:
         row_1 = 2
 
-    for i in range(0,3):
-        if array[2-i][col_1][row_1] != 0:
-            biggest = 2-i
+    for i in range(0, 3):
+        if array[2 - i][col_1][row_1] != 0:
+            biggest = 2 - i
             break
     if player == 'P1':
-        if array[biggest][col_1][row_1] == 2:
+        if array[biggest][col_1][row_1] == -1:
             print("리턴함P1인데 p2건드림")
             return None
     else:
         if array[biggest][col_1][row_1] == 1:
             print("리턴함P2인데 p1건드림")
             return None
-    if biggest == -1: #옮길것 없을때
+    if biggest == -1:  # 옮길것 없을때
         return None
-    #print(biggest)
+    # print(biggest)
 
     ch = 1
     end_check()
+
 
 def chane2():
     print("change2")
@@ -467,7 +468,7 @@ def chane2():
     col_2 = None
     row_2 = None
 
-    x, y = pygame.mouse.get_pos()#옮길 곳
+    x, y = pygame.mouse.get_pos()  # 옮길 곳
 
     if x < width / 3:
         col_2 = 0
@@ -487,8 +488,8 @@ def chane2():
 
     elif height / 3 * 2 > y > height / 2:
         row_2 = 2
-    
-    if array[biggest][col_2][row_2] != 0:#옮길곳에 이미 같은 크기가 있을때
+
+    if array[biggest][col_2][row_2] != 0:  # 옮길곳에 이미 같은 크기가 있을때
         ch = 0
         return None
 
@@ -497,58 +498,58 @@ def chane2():
             ch = 0
             return None
         else:
-            drawIcon(row_2,col_2,biggest)
+            drawIcon(row_2, col_2, biggest)
             if player == 'P1':
                 array[biggest][col_2][row_2] = 1
                 player = 'P2'
             else:
-                array[biggest][col_2][row_2] = 2
+                array[biggest][col_2][row_2] = -1
                 player = 'P1'
             array[biggest][col_1][row_1] = 0
-            draw_empty(row_1,col_1)
+            draw_empty(row_1, col_1)
 
     elif biggest == 1:
-        if array[2][col_2][row_2] !=0:
+        if array[2][col_2][row_2] != 0:
             ch = 0
             return None
         else:
-            drawIcon(row_2,col_2,biggest)
-            
+            drawIcon(row_2, col_2, biggest)
+
             if player == 'P1':
                 array[biggest][col_2][row_2] = 1
                 player = 'P2'
             else:
-                array[biggest][col_2][row_2] = 2
+                array[biggest][col_2][row_2] = -1
                 player = 'P1'
 
             if array[0][col_1][row_1] != 0:
-                draw_empty(row_1,col_1)
+                draw_empty(row_1, col_1)
                 array[biggest][col_1][row_1] = 0
-                drawIcon(row_1,col_1,0)
+                drawIcon(row_1, col_1, 0)
             else:
-                draw_empty(row_1,col_1)
-                array[biggest][col_1][row_1] = 0            
+                draw_empty(row_1, col_1)
+                array[biggest][col_1][row_1] = 0
 
     else:
-        drawIcon(row_2,col_2,biggest)
+        drawIcon(row_2, col_2, biggest)
 
         if player == 'P1':
             array[biggest][col_2][row_2] = 1
             player = 'P2'
         else:
-            array[biggest][col_2][row_2] = 2
+            array[biggest][col_2][row_2] = -1
             player = 'P1'
 
         if array[1][col_1][row_1] != 0:
-            draw_empty(row_1,col_1)
+            draw_empty(row_1, col_1)
             array[biggest][col_1][row_1] = 0
-            drawIcon(row_1,col_1,1)
+            drawIcon(row_1, col_1, 1)
         elif array[0][col_1][row_1] != 0:
-            draw_empty(row_1,col_1)
+            draw_empty(row_1, col_1)
             array[biggest][col_1][row_1] = 0
-            drawIcon(row_1,col_1,0)
+            drawIcon(row_1, col_1, 0)
         else:
-            draw_empty(row_1,col_1)
+            draw_empty(row_1, col_1)
             array[biggest][col_1][row_1] = 0
 
     ch = 0
