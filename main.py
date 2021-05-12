@@ -1,6 +1,5 @@
 import sys  # sys 패키지 임포트
 import time
-
 import pygame  # 파이게임 패키지 임포트
 import numpy as np
 from pygame.locals import QUIT  # 파이게임의 기능 중 종료를 임포트
@@ -13,7 +12,7 @@ player = 'P1'
 winner = None
 # 게임이 비겼는지 체크
 draw = None
-# game window창의 크기 값 설정
+# game window 창의 크기 값 설정
 width = 400
 height = 600
 # 배경화면 색
@@ -61,20 +60,19 @@ empty_img = pygame.transform.scale(empty_img, (60, 60))
 
 
 def limit_2(which_piece):  # 두개씩만 놓을 수 있게 개수 제한
-    global player
-    global array
-    sum = 0
+    global player ,array
+    s = 0
     if player == 'P1':
         for i in range(0, 3):
             for j in range(0, 3):
                 if array[which_piece][i][j] == 1:
-                    sum += 1
+                    s += 1
     else:
         for i in range(0, 3):
             for j in range(0, 3):
                 if array[which_piece][i][j] == -1:
-                    sum += 1
-    if sum < 2:  # 두개 놓여있으면 False 리턴
+                    s += 1
+    if s < 2:  # 두개 놓여있으면 False 리턴
         return True
     else:
         return False
@@ -140,8 +138,8 @@ def draw_status():
     pygame.display.update()
 
 
-def copy_real_to_vision(array):
-    board_r = array.reshape(27)
+def copy_real_to_vision(arr):
+    board_r = arr.reshape(27)
     board_v = np.zeros(9)
     for i in range(3):
         for j in range(3):
@@ -163,7 +161,7 @@ def copy_real_to_vision(array):
 # 게임이 종료됐는지 판단
 def end_check():
     global array, winner, draw
-    print(array)
+    print(array)  # 높이 열 행 배열(?)
     board_v = copy_real_to_vision(array)
     # 0 1 2
     # 3 4 5
@@ -181,23 +179,18 @@ def end_check():
                 board_v[line[1]] == board_v[line[2]] and \
                 board_v[line[0]] == 1:  # 플레이어1 이 이겼다면
             # 종료됐다면 누가 이겼는지 표시
-            done = True
-            reward = 1
             winner = 'P1'
             p1_cnt += 1
         if board_v[line[0]] == board_v[line[1]] and \
                 board_v[line[1]] == board_v[line[2]] and \
                 board_v[line[0]] == -1:  # 플레이어2 이 이겼다면
             # 종료됐다면 누가 이겼는지 표시
-            done = True
-            reward = -1
             winner = 'P2'
             p2_cnt += 1
 
     # 비긴 상태. 양쪽 모두 승리 조건을 동시에 만족하는 경우.
     if p1_cnt >= 1 and p2_cnt >= 1:
         draw = True
-        reward = 0
     draw_status()
 
 
@@ -223,9 +216,7 @@ def draw_empty(row, col):  # 지우기 대신 흰색 덮어 씌우기
 # 해당하는 위치에 아이콘 그리기
 def drawIcon(row, col, which_icon):
     print("drawIcon")
-    global player
-    global choice
-    global ch
+    global player, choice, ch
     # print(row, col)
     if row != 4:
         if row == 0:
@@ -271,7 +262,7 @@ def select_piece(x,y):
     if player == 'P1':
         if y > 100:  # 선택안하면 진행 X
             choice = False
-            if (y < (height * 4) / 6):
+            if y < (height * 4) / 6:
                 change(x, y)
             else:
                 return None
@@ -313,37 +304,25 @@ def select_piece(x,y):
 
 
 # 사용자 마우스 클릭에서 입력을 얻기 위해 설계한 함수
-def user_click(which_piece):
-    print("userclick")
-    global choice
-    global array
-    global turn_end
-    # 어떤 말인지, 크기에 대한 정보가 없으면
-    if which_piece is None:
-        return
+def user_click(x, y, which_piece):
+    print("user click")
+    global choice, array, turn_end
 
-    # 마우스 클릭 좌표
-    x, y = pygame.mouse.get_pos()
-    # print(x, y)
     col = None
     row = None
     # 마우스 클릭의 열을 저장
     if x < width / 3:
         col = 0
-
     elif x < width / 3 * 2:
         col = 1
-
     elif x < width:
         col = 2
 
     # 마우스 클릭의 행을 저장
     if height / 3 > y > height / 6:
         row = 0
-
     elif height / 2 > y > height / 3:
         row = 1
-
     elif height / 3 * 2 > y > height / 2:
         row = 2
 
@@ -354,14 +333,13 @@ def user_click(which_piece):
     if array[which_piece][col][row] == 0:  # 놓을 자리가 비어있는지 여부
         if which_piece == 0:  # 작은것 놓으려할때
             if (array[1][col][row] == 0) and (array[2][col][row] == 0):
-                if limit_2(which_piece) == True:
+                if limit_2(which_piece):
                     if player == 'P1':
                         array[which_piece][col][row] = 1
                     else:
                         array[which_piece][col][row] = -1
                     drawIcon(row, col, which_piece)
                     turn_end = True
-
                 else:
                     choice = False
                     init_game_window()
@@ -370,7 +348,7 @@ def user_click(which_piece):
                 init_game_window()
         elif which_piece == 1:  # 중간것 놓으려 할때
             if array[2][col][row] == 0:
-                if limit_2(which_piece) == True:
+                if limit_2(which_piece):
                     if player == 'P1':
                         array[which_piece][col][row] = 1
                     else:
@@ -384,7 +362,7 @@ def user_click(which_piece):
                 choice = False
                 init_game_window()
         else:  # 큰거 놓으려 할때
-            if limit_2(which_piece) == True:
+            if limit_2(which_piece):
                 if player == 'P1':
                     array[which_piece][col][row] = 1
                 else:
@@ -397,38 +375,28 @@ def user_click(which_piece):
     else:
         choice = False
         init_game_window()
-
     # if ...
-
     end_check()
 
 
 def change(x, y):  # 옮기기
     print("change")
-    global col_1
-    global row_1
-    global array
-    global biggest
-    global ch
-    global player
+    global col_1, row_1, array
+    global biggest, ch, player
 
     # 마우스 클릭의 열을 저장
     if x < width / 3:
         col_1 = 0
-
     elif x < width / 3 * 2:
         col_1 = 1
-
     elif x < width:
         col_1 = 2
 
     # 마우스 클릭의 행을 저장
     if height / 3 > y > height / 6:
         row_1 = 0
-
     elif height / 2 > y > height / 3:
         row_1 = 1
-
     elif height / 3 * 2 > y > height / 2:
         row_1 = 2
 
@@ -446,41 +414,32 @@ def change(x, y):  # 옮기기
             return None
     if biggest == -1:  # 옮길것 없을때
         return None
-    # print(biggest)
 
+    # print(biggest)
     ch = 1
     end_check()
 
 
-def change2():
+def change2(x, y):
     print("change2")
-    global biggest
-    global col_1
-    global row_1
-    global array
-    global ch
-    global player
-    global turn_end
+    global biggest, col_1, row_1
+    global array, ch
+    global player, turn_end
+
     col_2 = None
     row_2 = None
-
-    x, y = pygame.mouse.get_pos()  # 옮길 곳
     if x < width / 3:
         col_2 = 0
-
     elif x < width / 3 * 2:
         col_2 = 1
-
     elif x < width:
         col_2 = 2
 
     # 마우스 클릭의 행을 저장
     if height / 3 > y > height / 6:
         row_2 = 0
-
     elif height / 2 > y > height / 3:
         row_2 = 1
-
     elif height / 3 * 2 > y > height / 2:
         row_2 = 2
 
@@ -571,7 +530,7 @@ def new_game_window():
 def Human_player():
     while True:
         for event in pygame.event.get():  # 이벤트를 가지고 와서
-            #print(event)
+            # print(event)
             # 이벤트 타입이 만약 QUIT 이면(종료버튼 누르면)
             if event.type == QUIT:
                 pygame.quit()  # 파이게임 종료
@@ -586,10 +545,10 @@ def Human_player():
                         # 1. 놓을 말을 선택(선택했다면 그 말의 정보를 리턴할 것이고 그 리턴한 값을 user_click()에 인자로 넣음.)
                         which_piece = select_piece(x, y)  # which_piece = 어디를 클릭했는지에 따라 반환을 다르게 하는 함수
                     else:
-                        change2()
+                        change2(x, y)
                 else:
                     # 2. 놓을 위치 선택
-                    user_click(which_piece)  # 인자로 0, 1, 2(작은 말, 중간 말, 큰 말)
+                    user_click(x, y, which_piece)  # 인자로 0, 1, 2(작은 말, 중간 말, 큰 말)
                 # 3. 둘다 아니라면 무시
 
             if turn_end:
