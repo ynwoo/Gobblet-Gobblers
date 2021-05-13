@@ -472,7 +472,7 @@ def change2(x, y):
         else:
             drawIcon(row_2, col_2, biggest)
             turn_end = True
-            if player == 'P1':
+            if player == 'P2':
                 array[biggest][row_2][col_2] = 1
             else:
                 array[biggest][row_2][col_2] = -1
@@ -488,7 +488,7 @@ def change2(x, y):
     else:
         drawIcon(row_2, col_2, biggest)
         turn_end = True
-        if player == 'P1':
+        if player == 'P2':
             array[biggest][row_2][col_2] = 1
         else:
             array[biggest][row_2][col_2] = -1
