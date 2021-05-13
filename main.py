@@ -240,8 +240,8 @@ def drawIcon(row, col, which_icon):
                 screen.blit(p1_medium_piece_img, (posy - 20, posx - 20))
             else:  # which_icon == 2
                 screen.blit(p1_large_piece_img, (posy - 30, posx - 30))
-            if ch == 1:
-                player = 'P1'
+            # if ch == 1:
+            #     player = 'P1'
 
         else:
             if which_icon == 0:
@@ -250,8 +250,8 @@ def drawIcon(row, col, which_icon):
                 screen.blit(p2_medium_piece_img, (posy - 20, posx - 20))
             else:  # which_icon == 2
                 screen.blit(p2_large_piece_img, (posy - 30, posx - 30))
-            if ch == 1:
-                player = 'P2'
+            # if ch == 1:
+            #     player = 'P2'
 
     choice = False
     init_game_window()
@@ -472,15 +472,22 @@ def change2(x, y):
         else:
             drawIcon(row_2, col_2, biggest)
             turn_end = True
-            if player == 'P2':
+            if player == 'P1':
                 array[biggest][row_2][col_2] = 1
             else:
                 array[biggest][row_2][col_2] = -1
 
             if array[0][row_1][col_1] != 0:
                 draw_empty(row_1, col_1)
+                tmp = player
                 array[biggest][row_1][col_1] = 0
-                drawIcon(row_1, col_1, 0)
+                if array[0][row_1][col_1] == 1:#player 1
+                    player = 'P1'
+                    drawIcon(row_1,col_1,0)
+                elif array[0][row_1][col_1] == -1:#player 2
+                    player = 'P2'
+                    drawIcon(row_1, col_1, 0)
+                player = tmp
             else:
                 draw_empty(row_1, col_1)
                 array[biggest][row_1][col_1] = 0
@@ -488,19 +495,32 @@ def change2(x, y):
     else:
         drawIcon(row_2, col_2, biggest)
         turn_end = True
-        if player == 'P2':
+        if player == 'P1':
             array[biggest][row_2][col_2] = 1
         else:
             array[biggest][row_2][col_2] = -1
 
         if array[1][row_1][col_1] != 0:
             draw_empty(row_1, col_1)
-            array[biggest][row_1][col_1] = 0
-            drawIcon(row_1, col_1, 1)
+            tmp = player
+            if array[1][row_1][col_1] == 1:#player 1
+                player = 'P1'
+                drawIcon(row_1,col_1,1)
+            elif array[1][row_1][col_1] == -1:#player 2
+                player = 'P2'
+                drawIcon(row_1, col_1, 1)
+            player = tmp
         elif array[0][row_1][col_1] != 0:
             draw_empty(row_1, col_1)
             array[biggest][row_1][col_1] = 0
-            drawIcon(row_1, col_1, 0)
+            tmp = player
+            if array[0][row_1][col_1] == 1:#player 1
+                player = 'P1'
+                drawIcon(row_1,col_1,0)
+            elif array[0][row_1][col_1] == -1:#player 2
+                player = 'P2'
+                drawIcon(row_1, col_1, 0)
+            player = tmp
         else:
             draw_empty(row_1, col_1)
             array[biggest][row_1][col_1] = 0
