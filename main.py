@@ -387,7 +387,6 @@ def change(x, y):  # 옮기기
     print("change")
     global col_1, row_1, array
     global biggest, ch, player
-
     # 마우스 클릭의 열을 저장
     if x < width / 3:
         col_1 = 0
@@ -419,7 +418,7 @@ def change(x, y):  # 옮기기
     if biggest == -1:  # 옮길것 없을때
         return None
 
-    # print(biggest)
+    print(biggest)
     ch = 1
     end_check()
 
@@ -532,12 +531,13 @@ def change2(x, y):
 
 def reset_game():
     global array, winner, player, draw
+    global biggest
+    biggest = -1
     time.sleep(3)
     player = 'P1'
     draw = False
     winner = None
     new_game_window()
-    array = np.arange(27).reshape(3, 3, 3)
     for i in range(0, 3):
         for j in range(0, 3):
             for k in range(0, 3):
@@ -676,8 +676,12 @@ def main():  # 메인함수
         else:
             # 2플레이어 두는 곳.
             # 인공지능 플레이어 착수
+<<<<<<< HEAD
             print("인공지능 플레이어")
             Random_player(player)
+=======
+            #print("인공지능 플레이어")
+>>>>>>> ca4a317c1108ce9d1713676f3bb185c0229e664e
             Human_player()
             turn_end = False
 
