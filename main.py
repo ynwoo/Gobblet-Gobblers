@@ -524,7 +524,7 @@ def change2(x, y):
         else:
             draw_empty(row_1, col_1)
             array[biggest][row_1][col_1] = 0
-
+    biggest = -1
     ch = 0
     end_check()
 
@@ -583,85 +583,85 @@ def Human_player():
         FPSCLOCK.tick(fps)  # 몇 프레임으로 해줄지 : 30프레임
 
 
-def Random_player(player):
-    c_player = 0
-    if player == "P1":
-        c_player = 1
-    else:
-        c_player = 2
-
-    available_action = get_action(c_player)
-
-
-def get_action(c_player):
-    observation = []
-
-    if c_player == 1:
-        if self.p1_large_piece != 0:
-            for i in range(18, 27):
-                if self.board_r[i] == 0:
-                    observation.append(i)
-        if self.p1_medium_piece != 0:
-            for i in range(9, 18):
-                if self.board_r[i] == 0:
-                    observation.append(i)
-        if self.p1_small_piece != 0:
-            for i in range(9):
-                if self.board_r[i] == 0:
-                    observation.append(i)
-    else:  # player == 2
-        if self.p2_large_piece != 0:
-            for i in range(18, 27):
-                if self.board_r[i] == 0:
-                    observation.append(i)
-        if self.p2_medium_piece != 0:
-            for i in range(9, 18):
-                if self.board_r[i] == 0:
-                    observation.append(i)
-        if self.p2_small_piece != 0:
-            for i in range(9):
-                if self.board_r[i] == 0:
-                    observation.append(i)
-
-    #  중간말이 놓인 위치에는 작은 말을 놓을 수 없다.(제거 작업)
-    for i in range(9, 18):
-        if self.board_r[i] != 0 and self.board_r[i - 9] == 0:
-            if i - 9 in observation:
-                observation.remove(i - 9)
-
-    for i in range(18, 27):
-        # 큰 말이 놓인 위치에는 중간말과 작은 말을 놓을 수 없다.
-        if self.board_r[i] != 0 and self.board_r[i - 9] == 0:
-            if i - 9 in observation:
-                observation.remove(i - 9)
-        if self.board_r[i] != 0 and self.board_r[i - 18] == 0:
-            if i - 18 in observation:
-                observation.remove(i - 18)
-
-    observation.sort()  # 정렬
-
-    # 이동 가능한 경우의 수 추가
-    for i in range(9):
-        if self.board_r[i] == c_player and self.board_r[i + 9] == 0 and self.board_r[i + 18] == 0:
-            for j in range(9):
-                if self.board_r[j] == 0 and self.board_r[j + 9] == 0 and self.board_r[j + 18] == 0:
-                    observation.append(str(i) + 'to' + str(j))
-
-    for i in range(9, 18):
-        if self.board_r[i] == c_player and self.board_r[i + 9] == 0:
-            for j in range(9, 18):
-                if self.board_r[j] == 0 and self.board_r[j + 9] == 0:
-                    observation.append(str(i) + 'to' + str(j))
-
-    for i in range(18, 27):
-        if self.board_r[i] == c_player:
-            # 옮길 수 있는 위치 탐색
-            for j in range(18, 27):
-                # 빈 공간이면
-                if self.board_r[j] == 0:
-                    observation.append(str(i) + 'to' + str(j))
-
-    return observation
+# def Random_player(player):
+#     c_player = 0
+#     if player == "P1":
+#         c_player = 1
+#     else:
+#         c_player = 2
+#
+#     available_action = get_action(c_player)
+#
+#
+# def get_action(c_player):
+#     observation = []
+#
+#     if c_player == 1:
+#         if self.p1_large_piece != 0:
+#             for i in range(18, 27):
+#                 if self.board_r[i] == 0:
+#                     observation.append(i)
+#         if self.p1_medium_piece != 0:
+#             for i in range(9, 18):
+#                 if self.board_r[i] == 0:
+#                     observation.append(i)
+#         if self.p1_small_piece != 0:
+#             for i in range(9):
+#                 if self.board_r[i] == 0:
+#                     observation.append(i)
+#     else:  # player == 2
+#         if self.p2_large_piece != 0:
+#             for i in range(18, 27):
+#                 if self.board_r[i] == 0:
+#                     observation.append(i)
+#         if self.p2_medium_piece != 0:
+#             for i in range(9, 18):
+#                 if self.board_r[i] == 0:
+#                     observation.append(i)
+#         if self.p2_small_piece != 0:
+#             for i in range(9):
+#                 if self.board_r[i] == 0:
+#                     observation.append(i)
+#
+#     #  중간말이 놓인 위치에는 작은 말을 놓을 수 없다.(제거 작업)
+#     for i in range(9, 18):
+#         if self.board_r[i] != 0 and self.board_r[i - 9] == 0:
+#             if i - 9 in observation:
+#                 observation.remove(i - 9)
+#
+#     for i in range(18, 27):
+#         # 큰 말이 놓인 위치에는 중간말과 작은 말을 놓을 수 없다.
+#         if self.board_r[i] != 0 and self.board_r[i - 9] == 0:
+#             if i - 9 in observation:
+#                 observation.remove(i - 9)
+#         if self.board_r[i] != 0 and self.board_r[i - 18] == 0:
+#             if i - 18 in observation:
+#                 observation.remove(i - 18)
+#
+#     observation.sort()  # 정렬
+#
+#     # 이동 가능한 경우의 수 추가
+#     for i in range(9):
+#         if self.board_r[i] == c_player and self.board_r[i + 9] == 0 and self.board_r[i + 18] == 0:
+#             for j in range(9):
+#                 if self.board_r[j] == 0 and self.board_r[j + 9] == 0 and self.board_r[j + 18] == 0:
+#                     observation.append(str(i) + 'to' + str(j))
+#
+#     for i in range(9, 18):
+#         if self.board_r[i] == c_player and self.board_r[i + 9] == 0:
+#             for j in range(9, 18):
+#                 if self.board_r[j] == 0 and self.board_r[j + 9] == 0:
+#                     observation.append(str(i) + 'to' + str(j))
+#
+#     for i in range(18, 27):
+#         if self.board_r[i] == c_player:
+#             # 옮길 수 있는 위치 탐색
+#             for j in range(18, 27):
+#                 # 빈 공간이면
+#                 if self.board_r[j] == 0:
+#                     observation.append(str(i) + 'to' + str(j))
+#
+#     return observation
 
 
 def main():  # 메인함수
@@ -676,12 +676,8 @@ def main():  # 메인함수
         else:
             # 2플레이어 두는 곳.
             # 인공지능 플레이어 착수
-<<<<<<< HEAD
             print("인공지능 플레이어")
-            Random_player(player)
-=======
-            #print("인공지능 플레이어")
->>>>>>> ca4a317c1108ce9d1713676f3bb185c0229e664e
+            # Random_player(player)
             Human_player()
             turn_end = False
 
