@@ -502,6 +502,7 @@ def change2(x, y):
 
         if array[1][row_1][col_1] != 0:
             draw_empty(row_1, col_1)
+            array[biggest][row_1][col_1] = 0
             tmp = player
             if array[1][row_1][col_1] == 1:#player 1
                 player = 'P1'
