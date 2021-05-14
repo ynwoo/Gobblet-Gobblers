@@ -564,6 +564,7 @@ def Human_player():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 # 마우스 클릭 좌표
                 x, y = pygame.mouse.get_pos()
+                print(choice)
                 if not choice:
                     if ch == 0:
                         # 1. 놓을 말을 선택(선택했다면 그 말의 정보를 리턴할 것이고 그 리턴한 값을 user_click()에 인자로 넣음.)
@@ -590,7 +591,7 @@ def main():  # 메인함수
             # 1플레이어 두는 곳.
             Human_player()
             turn_end = False
-        else:  # turn == -1
+        else:
             # 2플레이어 두는 곳.
             # 인공지능 플레이어 착수
             print("인공지능 플레이어")
