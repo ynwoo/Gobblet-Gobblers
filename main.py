@@ -60,7 +60,7 @@ empty_img = pygame.transform.scale(empty_img, (60, 60))
 
 
 def limit_2(which_piece):  # 두개씩만 놓을 수 있게 개수 제한
-    global player ,array
+    global player, array
     s = 0
     if player == 'P1':
         for i in range(0, 3):
@@ -583,6 +583,87 @@ def Human_player():
         FPSCLOCK.tick(fps)  # 몇 프레임으로 해줄지 : 30프레임
 
 
+def Random_player(player):
+    c_player = 0
+    if player == "P1":
+        c_player = 1
+    else:
+        c_player = 2
+
+    available_action = get_action(c_player)
+
+
+def get_action(c_player):
+    observation = []
+
+    if c_player == 1:
+        if self.p1_large_piece != 0:
+            for i in range(18, 27):
+                if self.board_r[i] == 0:
+                    observation.append(i)
+        if self.p1_medium_piece != 0:
+            for i in range(9, 18):
+                if self.board_r[i] == 0:
+                    observation.append(i)
+        if self.p1_small_piece != 0:
+            for i in range(9):
+                if self.board_r[i] == 0:
+                    observation.append(i)
+    else:  # player == 2
+        if self.p2_large_piece != 0:
+            for i in range(18, 27):
+                if self.board_r[i] == 0:
+                    observation.append(i)
+        if self.p2_medium_piece != 0:
+            for i in range(9, 18):
+                if self.board_r[i] == 0:
+                    observation.append(i)
+        if self.p2_small_piece != 0:
+            for i in range(9):
+                if self.board_r[i] == 0:
+                    observation.append(i)
+
+    #  중간말이 놓인 위치에는 작은 말을 놓을 수 없다.(제거 작업)
+    for i in range(9, 18):
+        if self.board_r[i] != 0 and self.board_r[i - 9] == 0:
+            if i - 9 in observation:
+                observation.remove(i - 9)
+
+    for i in range(18, 27):
+        # 큰 말이 놓인 위치에는 중간말과 작은 말을 놓을 수 없다.
+        if self.board_r[i] != 0 and self.board_r[i - 9] == 0:
+            if i - 9 in observation:
+                observation.remove(i - 9)
+        if self.board_r[i] != 0 and self.board_r[i - 18] == 0:
+            if i - 18 in observation:
+                observation.remove(i - 18)
+
+    observation.sort()  # 정렬
+
+    # 이동 가능한 경우의 수 추가
+    for i in range(9):
+        if self.board_r[i] == c_player and self.board_r[i + 9] == 0 and self.board_r[i + 18] == 0:
+            for j in range(9):
+                if self.board_r[j] == 0 and self.board_r[j + 9] == 0 and self.board_r[j + 18] == 0:
+                    observation.append(str(i) + 'to' + str(j))
+
+    for i in range(9, 18):
+        if self.board_r[i] == c_player and self.board_r[i + 9] == 0:
+            for j in range(9, 18):
+                if self.board_r[j] == 0 and self.board_r[j + 9] == 0:
+                    observation.append(str(i) + 'to' + str(j))
+
+    for i in range(18, 27):
+        if self.board_r[i] == c_player:
+            # 옮길 수 있는 위치 탐색
+            for j in range(18, 27):
+                # 빈 공간이면
+                if self.board_r[j] == 0:
+                    observation.append(str(i) + 'to' + str(j))
+
+    return observation
+
+
 def main():  # 메인함수
     new_game_window()  # 화면 초기화
     global player, turn_end  # player 1P:1p, 2P:2p
@@ -596,6 +677,7 @@ def main():  # 메인함수
             # 2플레이어 두는 곳.
             # 인공지능 플레이어 착수
             print("인공지능 플레이어")
+            Random_player(player)
             Human_player()
             turn_end = False
 
