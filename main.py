@@ -548,7 +548,7 @@ def reset_game():
 def new_game_window():
     screen.blit(initiating_window, (0, 0))
     pygame.display.update()
-    time.sleep(2)
+    time.sleep(1)
     screen.fill(white)
     init_game_window()
 
@@ -584,85 +584,189 @@ def Human_player():
         FPSCLOCK.tick(fps)  # 몇 프레임으로 해줄지 : 30프레임
 
 
-# def Random_player(player):
-#     c_player = 0
-#     if player == "P1":
-#         c_player = 1
-#     else:
-#         c_player = 2
-#
-#     available_action = get_action(c_player)
-#
-#
-# def get_action(c_player):
-#     observation = []
-#
-#     if c_player == 1:
-#         if self.p1_large_piece != 0:
-#             for i in range(18, 27):
-#                 if self.board_r[i] == 0:
-#                     observation.append(i)
-#         if self.p1_medium_piece != 0:
-#             for i in range(9, 18):
-#                 if self.board_r[i] == 0:
-#                     observation.append(i)
-#         if self.p1_small_piece != 0:
-#             for i in range(9):
-#                 if self.board_r[i] == 0:
-#                     observation.append(i)
-#     else:  # player == 2
-#         if self.p2_large_piece != 0:
-#             for i in range(18, 27):
-#                 if self.board_r[i] == 0:
-#                     observation.append(i)
-#         if self.p2_medium_piece != 0:
-#             for i in range(9, 18):
-#                 if self.board_r[i] == 0:
-#                     observation.append(i)
-#         if self.p2_small_piece != 0:
-#             for i in range(9):
-#                 if self.board_r[i] == 0:
-#                     observation.append(i)
-#
-#     #  중간말이 놓인 위치에는 작은 말을 놓을 수 없다.(제거 작업)
-#     for i in range(9, 18):
-#         if self.board_r[i] != 0 and self.board_r[i - 9] == 0:
-#             if i - 9 in observation:
-#                 observation.remove(i - 9)
-#
-#     for i in range(18, 27):
-#         # 큰 말이 놓인 위치에는 중간말과 작은 말을 놓을 수 없다.
-#         if self.board_r[i] != 0 and self.board_r[i - 9] == 0:
-#             if i - 9 in observation:
-#                 observation.remove(i - 9)
-#         if self.board_r[i] != 0 and self.board_r[i - 18] == 0:
-#             if i - 18 in observation:
-#                 observation.remove(i - 18)
-#
-#     observation.sort()  # 정렬
-#
-#     # 이동 가능한 경우의 수 추가
-#     for i in range(9):
-#         if self.board_r[i] == c_player and self.board_r[i + 9] == 0 and self.board_r[i + 18] == 0:
-#             for j in range(9):
-#                 if self.board_r[j] == 0 and self.board_r[j + 9] == 0 and self.board_r[j + 18] == 0:
-#                     observation.append(str(i) + 'to' + str(j))
-#
-#     for i in range(9, 18):
-#         if self.board_r[i] == c_player and self.board_r[i + 9] == 0:
-#             for j in range(9, 18):
-#                 if self.board_r[j] == 0 and self.board_r[j + 9] == 0:
-#                     observation.append(str(i) + 'to' + str(j))
-#
-#     for i in range(18, 27):
-#         if self.board_r[i] == c_player:
-#             # 옮길 수 있는 위치 탐색
-#             for j in range(18, 27):
-#                 # 빈 공간이면
-#                 if self.board_r[j] == 0:
-#                     observation.append(str(i) + 'to' + str(j))
-#
-#     return observation
+def Random_player():
+    global turn_end, player
+    c_player = 0
+    if player == "P1":
+        c_player = 1
+    else:
+        c_player = -1
+
+    # 가능한 행동 조사
+    available_action = get_action(c_player)
+    print("available_action : {}".format(available_action))
+    # 가능한 행동 중 하나를 무작위로 선택
+    action = np.random.randint(len(available_action))
+    action = available_action[action]
+    print("action : {}".format(action))
+    # 그 행동에 따라 착수
+
+    if isinstance(action, int):  # 숫자라면
+        which_piece = action // 9
+        if which_piece == 0:
+            action = action
+        elif which_piece == 1:
+            action = action - 9
+        else:
+            action = action - 18
+        row = action // 3
+        col = action % 3
+
+        if player == 'P1':
+            array[which_piece][row][col] = 1
+        else:
+            array[which_piece][row][col] = -1
+        drawIcon(row, col, which_piece)
+    else:  # 문자라면 -> 움직이는 액션이다
+        action = action.split('to')  # pos[0]가 지울 장소, pos[1]이 생길 장소
+        before_place = int(action[0])
+        after_place = int(action[1])
+
+        if 0 <= before_place < 9:
+            which_piece = 0
+        elif 9 <= before_place < 18:
+            which_piece = 1
+        else:
+            which_piece = 2
+
+        if which_piece == 0:
+            before_place = before_place
+            after_place = after_place
+        elif which_piece == 1:
+            before_place = before_place - 9
+            after_place = after_place - 9
+        else:
+            before_place = before_place - 18
+            after_place = after_place - 18
+
+        row_b = before_place // 3
+        col_b = before_place % 3
+
+        row_a = after_place // 3
+        col_a = after_place % 3
+
+        # 원래 있던 자리에 있는 말을 지운다
+        array[which_piece][row_b][col_b] = 0
+        # 옮길 위채에 말을 둔다.
+        if player == 'P1':
+            array[which_piece][row_a][col_a] = 1
+        else:
+            array[which_piece][row_a][col_a] = -1
+        array_to_display()  # 화면 새로고침
+
+    turn_end = True
+    end_check()
+
+
+def get_action(c_player):
+    global array
+    observation = []
+    board_r = array.reshape(27)
+    print(board_r)
+    if limit_2(2):  # 큰 말을 놓을 수 있으면
+        for i in range(18, 27):
+            if board_r[i] == 0:
+                observation.append(i)
+    if limit_2(1):  # 작은 말을 놓을 수 있으면
+        for i in range(9, 18):
+            if board_r[i] == 0:
+                observation.append(i)
+    if limit_2(0):
+        for i in range(9):
+            if board_r[i] == 0:
+                observation.append(i)
+
+    #  중간말이 놓인 위치에는 작은 말을 놓을 수 없다.(제거 작업)
+    for i in range(9, 18):
+        if board_r[i] != 0 and board_r[i - 9] == 0:
+            if i - 9 in observation:
+                observation.remove(i - 9)
+    for i in range(18, 27):
+        # 큰 말이 놓인 위치에는 중간말과 작은 말을 놓을 수 없다.
+        if board_r[i] != 0 and board_r[i - 9] == 0:
+            if i - 9 in observation:
+                observation.remove(i - 9)
+        if board_r[i] != 0 and board_r[i - 18] == 0:
+            if i - 18 in observation:
+                observation.remove(i - 18)
+    observation.sort()  # 정렬
+    # 이동 가능한 경우의 수 추가
+    for i in range(9):
+        if board_r[i] == c_player and board_r[i + 9] == 0 and board_r[i + 18] == 0:
+            for j in range(9):
+                if board_r[j] == 0 and board_r[j + 9] == 0 and board_r[j + 18] == 0:
+                    observation.append(str(i) + 'to' + str(j))
+    for i in range(9, 18):
+        if board_r[i] == c_player and board_r[i + 9] == 0:
+            for j in range(9, 18):
+                if board_r[j] == 0 and board_r[j + 9] == 0:
+                    observation.append(str(i) + 'to' + str(j))
+    for i in range(18, 27):
+        if board_r[i] == c_player:
+            # 옮길 수 있는 위치 탐색
+            for j in range(18, 27):
+                # 빈 공간이면
+                if board_r[j] == 0:
+                    observation.append(str(i) + 'to' + str(j))
+
+    return observation
+
+
+def array_to_display():
+    global array
+
+    for i in range(3):
+        for j in range(3):
+            draw_empty(i, j)
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                if array[i][j][k] == 1:
+                    if j == 0:
+                        posx = height * 3 / 12
+                    if j == 1:
+                        posx = height * 5 / 12
+                    if j == 2:
+                        posx = height * 7 / 12
+
+                    if k == 0:
+                        posy = width / 6
+                    if k == 1:
+                        posy = width / 2
+                    if k == 2:
+                        posy = width / 6 * 5
+
+                    if i == 0:
+                        screen.blit(p2_small_piece_img, (posy - 10, posx - 10))
+                    elif i == 1:
+                        screen.blit(p2_medium_piece_img, (posy - 20, posx - 20))
+                    else:  # which_icon == 2
+                        screen.blit(p2_large_piece_img, (posy - 30, posx - 30))
+
+                elif array[i][j][k] == -1:
+                    if j == 0:
+                        posx = height * 3 / 12
+                    if j == 1:
+                        posx = height * 5 / 12
+                    if j == 2:
+                        posx = height * 7 / 12
+
+                    if k == 0:
+                        posy = width / 6
+                    if k == 1:
+                        posy = width / 2
+                    if k == 2:
+                        posy = width / 6 * 5
+
+                    if i == 0:
+                        screen.blit(p1_small_piece_img, (posy - 10, posx - 10))
+                    elif i == 1:
+                        screen.blit(p1_medium_piece_img, (posy - 20, posx - 20))
+                    else:  # which_icon == 2
+                        screen.blit(p1_large_piece_img, (posy - 30, posx - 30))
+
+    init_game_window()
+    pygame.display.update()
 
 
 def main():  # 메인함수
@@ -672,14 +776,15 @@ def main():  # 메인함수
     while True:  # 화면을 계속 띄우기 위해
         if player == "P1":
             # 1플레이어 두는 곳.
-            Human_player()
+            # time.sleep(0.5)
+            Random_player()
+            #Human_player()
             turn_end = False
         else:
             # 2플레이어 두는 곳.
-            # 인공지능 플레이어 착수
-            print("인공지능 플레이어")
-            # Random_player(player)
-            Human_player()
+            # time.sleep(0.5)
+            Random_player()
+            # Human_player()
             turn_end = False
 
         if player == "P1":
