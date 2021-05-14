@@ -388,6 +388,7 @@ def change(x, y):  # 옮기기
     global col_1, row_1, array
     global biggest, ch, player
     # 마우스 클릭의 열을 저장
+    biggest = -1
     if x < width / 3:
         col_1 = 0
     elif x < width / 3 * 2:
