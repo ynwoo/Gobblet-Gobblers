@@ -596,7 +596,7 @@ def Random_player():
         c_player = -1
 
     # 가능한 행동 조사
-    available_action = get_action(c_player)
+    available_action = get_action(c_player, array)
     print("available_action : {}".format(available_action))
     # 가능한 행동 중 하나를 무작위로 선택
     action = np.random.randint(len(available_action))
@@ -663,10 +663,9 @@ def set_action(action, arr):
         array_to_display()  # 화면 새로고침
 
 
-def get_action(c_player):
-    global array
+def get_action(c_player, arr):
     observation = []
-    board_r = array.reshape(27)
+    board_r = arr.reshape(27)
     print(board_r)
     if limit_2(2):  # 큰 말을 놓을 수 있으면
         for i in range(18, 27):
