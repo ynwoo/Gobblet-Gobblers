@@ -158,9 +158,10 @@ def copy_real_to_vision(arr):
 
 
 # 게임이 종료됐는지 판단
-def end_check():
-    global array, winner, draw
-    print(array)  # 높이 열 행 배열(?)
+def end_check(arr):
+    ec_winner = None
+    ec_draw = False
+
     board_v = copy_real_to_vision(array)
     # 0 1 2
     # 3 4 5
@@ -178,19 +179,20 @@ def end_check():
                 board_v[line[1]] == board_v[line[2]] and \
                 board_v[line[0]] == 1:  # 플레이어1 이 이겼다면
             # 종료됐다면 누가 이겼는지 표시
-            winner = 'P1'
+            ec_winner = 'P1'
             p1_cnt += 1
         if board_v[line[0]] == board_v[line[1]] and \
                 board_v[line[1]] == board_v[line[2]] and \
                 board_v[line[0]] == -1:  # 플레이어2 이 이겼다면
             # 종료됐다면 누가 이겼는지 표시
-            winner = 'P2'
+            ec_winner = 'P2'
             p2_cnt += 1
 
     # 비긴 상태. 양쪽 모두 승리 조건을 동시에 만족하는 경우.
     if p1_cnt >= 1 and p2_cnt >= 1:
-        draw = True
+        ec_draw = True
     draw_status()
+    return ec_winner, ec_draw
 
 
 def draw_empty(row, col):  # 지우기 대신 흰색 덮어 씌우기
@@ -310,7 +312,7 @@ def select_piece(x,y):
 def user_click(x, y, which_piece):
     print("user click")
     global choice, array, turn_end
-
+    global winner, draw
     col = None
     row = None
     # 마우스 클릭의 열을 저장
@@ -379,13 +381,14 @@ def user_click(x, y, which_piece):
         choice = False
         init_game_window()
     # if ...
-    end_check()
+    winner, draw = end_check(array)
 
 
 def change(x, y):  # 옮기기
     print("change")
     global col_1, row_1, array
     global biggest, ch, player
+    global winner, draw
     # 마우스 클릭의 열을 저장
     biggest = -1
     if x < width / 3:
@@ -420,7 +423,7 @@ def change(x, y):  # 옮기기
 
     print(biggest)
     ch = 1
-    end_check()
+    winner, draw = end_check(array)
 
 
 def change2(x, y):
@@ -428,7 +431,7 @@ def change2(x, y):
     global biggest, col_1, row_1
     global array, ch
     global player, turn_end
-
+    global winner, draw
     col_2 = None
     row_2 = None
     if x < width / 3:
@@ -526,7 +529,7 @@ def change2(x, y):
             array[biggest][row_1][col_1] = 0
     biggest = -1
     ch = 0
-    end_check()
+    winner, draw = end_check(array)
 
 
 def reset_game():
@@ -584,7 +587,8 @@ def Human_player():
 
 
 def Random_player():
-    global turn_end, player
+    global turn_end, player, array
+    global winner, draw
     c_player = 0
     if player == "P1":
         c_player = 1
@@ -601,7 +605,7 @@ def Random_player():
     # 그 행동에 따라 착수
     set_action(action, array)
     turn_end = True
-    end_check()
+    winner, draw = end_check(array)
 
 
 def set_action(action, arr):
