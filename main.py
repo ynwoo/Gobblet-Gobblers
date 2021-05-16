@@ -3,7 +3,7 @@ import time
 import pygame  # 파이게임 패키지 임포트
 import numpy as np
 from pygame.locals import QUIT  # 파이게임의 기능 중 종료를 임포트
-
+sys.setrecursionlimit(5000)
 # 글로벌 변수 선언
 
 # 플레이어 값을 저장 P1 or P2
@@ -59,19 +59,13 @@ p2_small_piece_img = pygame.transform.scale(p2_piece_img, (20, 20))
 empty_img = pygame.transform.scale(empty_img, (60, 60))
 
 
-def limit_2(which_piece):  # 두개씩만 놓을 수 있게 개수 제한
-    global player, array
+def limit_2(arr, c_player, which_piece):  # 두개씩만 놓을 수 있게 개수 제한
     s = 0
-    if player == 'P1':
-        for i in range(0, 3):
-            for j in range(0, 3):
-                if array[which_piece][i][j] == 1:
-                    s += 1
-    else:
-        for i in range(0, 3):
-            for j in range(0, 3):
-                if array[which_piece][i][j] == -1:
-                    s += 1
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if arr[which_piece][i][j] == c_player:
+                s += 1
+
     if s < 2:  # 두개 놓여있으면 False 리턴
         return True
     else:
@@ -162,7 +156,8 @@ def end_check(arr):
     ec_winner = None
     ec_draw = False
 
-    board_v = copy_real_to_vision(array)
+    board_v = copy_real_to_vision(arr)
+    # print("board_v : {}".format(board_v))
     # 0 1 2
     # 3 4 5
     # 6 7 8
@@ -334,11 +329,14 @@ def user_click(x, y, which_piece):
     if (col == None) or (row == None):
         return
     # 만약 얻은 행, 열에 말을 놓을 수 있다면 말을 놓는다!
-
+    if player == "P1":
+        c_player = 1
+    else:
+        c_player = -1
     if array[which_piece][row][col] == 0:  # 놓을 자리가 비어있는지 여부
         if which_piece == 0:  # 작은것 놓으려할때
             if (array[1][row][col] == 0) and (array[2][row][col] == 0):
-                if limit_2(which_piece):
+                if limit_2(array, c_player, which_piece):
                     if player == 'P1':
                         array[which_piece][row][col] = 1
                     else:
@@ -353,7 +351,7 @@ def user_click(x, y, which_piece):
                 init_game_window()
         elif which_piece == 1:  # 중간것 놓으려 할때
             if array[2][row][col] == 0:
-                if limit_2(which_piece):
+                if limit_2(array, c_player, which_piece):
                     if player == 'P1':
                         array[which_piece][row][col] = 1
                     else:
@@ -367,7 +365,7 @@ def user_click(x, y, which_piece):
                 choice = False
                 init_game_window()
         else:  # 큰거 놓으려 할때
-            if limit_2(which_piece):
+            if limit_2(array, c_player, which_piece):
                 if player == 'P1':
                     array[which_piece][row][col] = 1
                 else:
@@ -608,6 +606,104 @@ def Random_player():
     winner, draw = end_check(array)
 
 
+def Monte_Carlo_player():
+    global turn_end, player, array
+    global winner, draw
+    c_player = 0
+    if player == "P1":
+        c_player = 1
+    else:
+        c_player = -1
+    num_playout = 20  # 10초안에 둘 수 있는 값이어야함.
+
+    # 가능한 행동 조사
+    available_action = get_action(c_player, array)
+    # 상태가치를 저장할 배열 V
+    V = np.zeros(len(available_action))
+
+    # 가능한 행동들을 돌면서 V[i]+=1을 해줌
+    for i in range(len(available_action)):
+        # 플레이 아웃을 300번 반복
+        for j in range(num_playout):
+            # 지금 상태를 복사해서 플레이 아웃에 사용
+            temp_array = array.copy()
+            # play out 의 결과는 승리플레이어의 값으로 반환
+            # p1이 이기면 1, p2가 이기면 -1
+            reward = playout(temp_array, available_action[i], c_player)
+            if player == reward:
+                V[i] += 1
+
+    # 가장 승률이 높은 행동을 저장
+    action = np.argmax(V)
+    action = available_action[action]
+
+    set_action(action, array)
+    turn_end = True
+    winner, draw = end_check(array)
+
+
+def playout(temp_array, action, c_player):
+    # 보드에 플레이어의 선택을 표시(만약 새로운 말을 놓는 거라면)
+    if isinstance(action, int):
+        which_piece = action // 9
+        if which_piece == 0:
+            action = action
+        elif which_piece == 1:
+            action = action - 9
+        else:
+            action = action - 18
+        row = action // 3
+        col = action % 3
+
+        temp_array[which_piece][row][col] = c_player
+    else:  # 문자라면 -> 움직이는 액션이다
+        action = action.split('to')  # pos[0]가 지울 장소, pos[1]이 생길 장소
+        before_place = int(action[0])
+        after_place = int(action[1])
+
+        if 0 <= before_place < 9:
+            which_piece = 0
+        elif 9 <= before_place < 18:
+            which_piece = 1
+        else:
+            which_piece = 2
+
+        if which_piece == 0:
+            before_place = before_place
+            after_place = after_place
+        elif which_piece == 1:
+            before_place = before_place - 9
+            after_place = after_place - 9
+        else:
+            before_place = before_place - 18
+            after_place = after_place - 18
+
+        row_b = before_place // 3
+        col_b = before_place % 3
+
+        row_a = after_place // 3
+        col_a = after_place % 3
+
+        # 원래 있던 자리에 있는 말을 지운다
+        temp_array[which_piece][row_b][col_b] = 0
+        # 옮길 위채에 말을 둔다.
+        temp_array[which_piece][row_a][col_a] = c_player
+
+    po_winner, po_draw = end_check(temp_array)
+    if po_winner is not None or po_draw:  # 게임이 끝났으면
+        return po_winner
+    else:
+        # 플레이어 교체
+        c_player = -c_player
+        # 가능한 행동 조사
+        available_action = get_action(c_player, temp_array)
+        # print("2: {}".format(available_action))
+        # 무작위로 행동을 선택
+        action = np.random.randint(len(available_action))
+        # print(action)
+        reward = playout(temp_array, available_action[action], c_player)
+
+
 def set_action(action, arr):
     if isinstance(action, int):  # 숫자라면
         which_piece = action // 9
@@ -666,16 +762,16 @@ def set_action(action, arr):
 def get_action(c_player, arr):
     observation = []
     board_r = arr.reshape(27)
-    print(board_r)
-    if limit_2(2):  # 큰 말을 놓을 수 있으면
+    # print(board_r)
+    if limit_2(arr, c_player, 2):  # 큰 말을 놓을 수 있으면
         for i in range(18, 27):
             if board_r[i] == 0:
                 observation.append(i)
-    if limit_2(1):  # 작은 말을 놓을 수 있으면
+    if limit_2(arr, c_player, 1):  # 작은 말을 놓을 수 있으면
         for i in range(9, 18):
             if board_r[i] == 0:
                 observation.append(i)
-    if limit_2(0):
+    if limit_2(arr, c_player, 0):
         for i in range(9):
             if board_r[i] == 0:
                 observation.append(i)
@@ -781,13 +877,15 @@ def main():  # 메인함수
         if player == "P1":
             # 1플레이어 두는 곳.
             # time.sleep(0.5)
-            Random_player()
+            # Random_player()
             # Human_player()
+            Monte_Carlo_player()
             turn_end = False
         else:
             # 2플레이어 두는 곳.
             # time.sleep(0.5)
-            Random_player()
+            # Random_player()
+            Monte_Carlo_player()
             # Human_player()
             turn_end = False
 
