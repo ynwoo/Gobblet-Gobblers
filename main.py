@@ -117,7 +117,6 @@ def init_game_window():
 # 맨 밑의 상태정보 표시
 def draw_status():
     global draw
-
     if winner is None:
         message = player.upper() + "'s Turn"
     else:
@@ -600,7 +599,12 @@ def Random_player():
     action = available_action[action]
     print("action : {}".format(action))
     # 그 행동에 따라 착수
+    set_action(action, array)
+    turn_end = True
+    end_check()
 
+
+def set_action(action, arr):
     if isinstance(action, int):  # 숫자라면
         which_piece = action // 9
         if which_piece == 0:
@@ -613,9 +617,9 @@ def Random_player():
         col = action % 3
 
         if player == 'P1':
-            array[which_piece][row][col] = 1
+            arr[which_piece][row][col] = 1
         else:
-            array[which_piece][row][col] = -1
+            arr[which_piece][row][col] = -1
         drawIcon(row, col, which_piece)
     else:  # 문자라면 -> 움직이는 액션이다
         action = action.split('to')  # pos[0]가 지울 장소, pos[1]이 생길 장소
@@ -646,16 +650,13 @@ def Random_player():
         col_a = after_place % 3
 
         # 원래 있던 자리에 있는 말을 지운다
-        array[which_piece][row_b][col_b] = 0
+        arr[which_piece][row_b][col_b] = 0
         # 옮길 위채에 말을 둔다.
         if player == 'P1':
-            array[which_piece][row_a][col_a] = 1
+            arr[which_piece][row_a][col_a] = 1
         else:
-            array[which_piece][row_a][col_a] = -1
+            arr[which_piece][row_a][col_a] = -1
         array_to_display()  # 화면 새로고침
-
-    turn_end = True
-    end_check()
 
 
 def get_action(c_player):
@@ -778,7 +779,7 @@ def main():  # 메인함수
             # 1플레이어 두는 곳.
             # time.sleep(0.5)
             Random_player()
-            #Human_player()
+            # Human_player()
             turn_end = False
         else:
             # 2플레이어 두는 곳.
@@ -791,11 +792,11 @@ def main():  # 메인함수
             player = "P2"
         else:
             player = "P1"
+        draw_status()
 
         if winner or draw:
             reset_game()
 
-        draw_status()
         pygame.display.update()  # 지금까지 작성한 코드를 윈도우 창에 표시해주겠다는 업데이트(필수!)
         FPSCLOCK.tick(fps)  # 몇 프레임으로 해줄지 : 30프레임
 
