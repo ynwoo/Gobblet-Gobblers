@@ -186,7 +186,7 @@ def end_check(arr):
     # 비긴 상태. 양쪽 모두 승리 조건을 동시에 만족하는 경우.
     if p1_cnt >= 1 and p2_cnt >= 1:
         ec_draw = True
-    draw_status()
+    # draw_status()
     return ec_winner, ec_draw
 
 
@@ -614,7 +614,7 @@ def Monte_Carlo_player():
         c_player = 1
     else:
         c_player = -1
-    num_playout = 20  # 10초안에 둘 수 있는 값이어야함.
+    num_playout = 300  # 10초안에 둘 수 있는 값이어야함.
 
     # 가능한 행동 조사
     available_action = get_action(c_player, array)
@@ -630,9 +630,11 @@ def Monte_Carlo_player():
             # play out 의 결과는 승리플레이어의 값으로 반환
             # p1이 이기면 1, p2가 이기면 -1
             reward = playout(temp_array, available_action[i], c_player)
+            # print("reward : {}".format(reward))
             if player == reward:
                 V[i] += 1
-
+    v_table = {name:value for name, value in zip(available_action, V)}
+    print("V : {}".format(v_table))
     # 가장 승률이 높은 행동을 저장
     action = np.argmax(V)
     action = available_action[action]
@@ -688,9 +690,10 @@ def playout(temp_array, action, c_player):
         temp_array[which_piece][row_b][col_b] = 0
         # 옮길 위채에 말을 둔다.
         temp_array[which_piece][row_a][col_a] = c_player
-
+    # print("temp_arr : {}".format(temp_array))
     po_winner, po_draw = end_check(temp_array)
     if po_winner is not None or po_draw:  # 게임이 끝났으면
+        # print("po_winner : {}, po_draw : {}".format(po_winner,po_draw))
         return po_winner
     else:
         # 플레이어 교체
@@ -702,6 +705,7 @@ def playout(temp_array, action, c_player):
         action = np.random.randint(len(available_action))
         # print(action)
         reward = playout(temp_array, available_action[action], c_player)
+        return reward
 
 
 def set_action(action, arr):
