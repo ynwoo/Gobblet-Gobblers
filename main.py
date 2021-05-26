@@ -987,7 +987,7 @@ def main():  # 메인함수
     p1_score = 0
     p2_score = 0
     draw_score = 0
-    max_learn = 100
+    max_learn = 1000
 
     for j in tqdm(range(max_learn)):
         np.random.seed(j)
@@ -1116,7 +1116,7 @@ def main():  # 메인함수
         else:
             player = "P1"
         draw_status()
-        
+
         if winner or draw:
             reset_game()
 
