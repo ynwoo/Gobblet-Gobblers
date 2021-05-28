@@ -903,44 +903,52 @@ class Q_learning_player:
         return action
 
     def policy(self, arr, c_player):
-        # 행동 가능한 상태를 저장
-        available_action = get_action(c_player, arr)
-        # 행동 가능한 상태의 Q-value를 저장
-        qvalues = np.zeros(len(available_action))
         board_r = arr.reshape(27)
-        # 행동 가능한 상태의 Q-value를 조사
-        for i, act in enumerate(available_action):
-            key = (tuple(board_r), act)
+        # 해당 state 저장
+        tmp_board = np.zeros(27)
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 22)
+            self.qtable[key] = 0
+            return 22
+        else:
+            # 행동 가능한 상태를 저장
+            available_action = get_action(c_player, arr)
+            # 행동 가능한 상태의 Q-value를 저장
+            qvalues = np.zeros(len(available_action))
+            board_r = arr.reshape(27)
+            # 행동 가능한 상태의 Q-value를 조사
+            for i, act in enumerate(available_action):
+                key = (tuple(board_r), act)
 
-            # 현재 상태를 경험한 적이 없다면(딕셔너리에 없다면) 딕셔너리에 추가(Q-value = 0)
-            if self.qtable.get(key) == None:
-                self.qtable[key] = 0
-            # 행동 가능한 상태의 Q-value 저장
-            qvalues[i] = self.qtable.get(key)
+                # 현재 상태를 경험한 적이 없다면(딕셔너리에 없다면) 딕셔너리에 추가(Q-value = 0)
+                if self.qtable.get(key) == None:
+                    self.qtable[key] = 0
+                # 행동 가능한 상태의 Q-value 저장
+                qvalues[i] = self.qtable.get(key)
 
-        # e-greedy
-        # 가능한 행동들 중에서 Q-value 가 가장 큰 행동을 저장
-        greedy_action = np.argmax(qvalues)
+            # e-greedy
+            # 가능한 행동들 중에서 Q-value 가 가장 큰 행동을 저장
+            greedy_action = np.argmax(qvalues)
 
-        # max Q-value와 같은 값이 여러개 있는지 확인한 후 double_check에 상태를 저장
-        double_check = (np.where(qvalues == np.max(qvalues), 1, 0))
+            # max Q-value와 같은 값이 여러개 있는지 확인한 후 double_check에 상태를 저장
+            double_check = (np.where(qvalues == np.max(qvalues), 1, 0))
 
-        # 여러개 있다면 중복된 상태중에서 다시 무작위로 선택
-        if np.sum(double_check) > 1:
-            double_check = double_check / np.sum(double_check)
-            greedy_action = np.random.choice(range(0, len(double_check)), p=double_check)
+            # 여러개 있다면 중복된 상태중에서 다시 무작위로 선택
+            if np.sum(double_check) > 1:
+                double_check = double_check / np.sum(double_check)
+                greedy_action = np.random.choice(range(0, len(double_check)), p=double_check)
 
-        # e-greedy 로 행동들의 선택 확률을 계산
-        pr = np.zeros(len(available_action))
+            # e-greedy 로 행동들의 선택 확률을 계산
+            pr = np.zeros(len(available_action))
 
-        for i in range(len(available_action)):
-            if i == greedy_action:
-                pr[i] = 1 - self.epsilon
-            else:
-                pr[i] = self.epsilon / (len(available_action) - 1)
+            for i in range(len(available_action)):
+                if i == greedy_action:
+                    pr[i] = 1 - self.epsilon
+                else:
+                    pr[i] = self.epsilon / (len(available_action) - 1)
 
-        action = np.random.choice(range(0, len(available_action)), p=pr)
-        return available_action[action]
+            action = np.random.choice(range(0, len(available_action)), p=pr)
+            return available_action[action]
 
     def learn_qtable(self, board_backup, action_backup, arr, c_reward, c_player):
         # 현재 상태와 행동을 키로 저장
@@ -987,7 +995,7 @@ def main():  # 메인함수
     p1_score = 0
     p2_score = 0
     draw_score = 0
-    max_learn = 10000
+    max_learn = 100000
 
     for j in tqdm(range(max_learn)):
         np.random.seed(j)
@@ -1089,7 +1097,9 @@ def main():  # 메인함수
 
     print("p1 = {} p2 = {} draw = {}".format(p1_score, p2_score, draw_score))
     print("end train")
-
+    # 최적의 선택만 하도록
+    p1_Qplayer.epsilon = 0
+    p2_Qplayer.epsilon = 0
     while True:  # 화면을 계속 띄우기 위해
         if player == "P1":
             # 1플레이어 두는 곳.
