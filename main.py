@@ -935,9 +935,9 @@ class Q_learning_player:
 
         for i in range(len(available_action)):
             if i == greedy_action:
-                pr[i] = 1 - self.epsilon + self.epsilon / len(available_action)
+                pr[i] = 1 - self.epsilon
             else:
-                pr[i] = self.epsilon / len(available_action)
+                pr[i] = self.epsilon / (len(available_action) - 1)
 
         action = np.random.choice(range(0, len(available_action)), p=pr)
         return available_action[action]
@@ -987,7 +987,7 @@ def main():  # 메인함수
     p1_score = 0
     p2_score = 0
     draw_score = 0
-    max_learn = 1000
+    max_learn = 10000
 
     for j in tqdm(range(max_learn)):
         np.random.seed(j)
@@ -1106,9 +1106,9 @@ def main():  # 메인함수
             time.sleep(0.5)
             # Random_player()
             # Monte_Carlo_player()
-            act = p2_Qplayer.select_action(array, -1)
-            Q_player(act)
-            # Human_player()
+            # act = p2_Qplayer.select_action(array, -1)
+            # Q_player(act)
+            Human_player()
             turn_end = False
 
         if player == "P1":
