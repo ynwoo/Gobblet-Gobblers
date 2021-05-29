@@ -910,6 +910,90 @@ class Q_learning_player:
             key = (tuple(board_r), 22)
             self.qtable[key] = 0
             return 22
+
+        for i in range(0,9) :
+            tmp_board = np.zeros(27)
+            tmp_board[i] = -1
+            tmp_board[22] = 1
+            if np.array_equal(tmp_board, board_r):
+                key = (tuple(board_r), 18+i)
+                self.qtable[key] = 0
+                return 18+i
+
+        for i in range(9,18) :
+            tmp_board = np.zeros(27)
+            tmp_board[i] = -1
+            tmp_board[22] = 1
+            if np.array_equal(tmp_board, board_r):
+                key = (tuple(board_r), 9+i)
+                self.qtable[key] = 0
+                return 9+i
+
+        tmp_board = np.zeros(27)
+        tmp_board[22] = 1
+        tmp_board[18] = -1
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 19)
+            self.qtable[key] = 0
+            return 19
+
+        tmp_board = np.zeros(27)
+        tmp_board[22] = 1
+        tmp_board[19] = -1
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 20)
+            self.qtable[key] = 0
+            return 20
+
+        tmp_board = np.zeros(27)
+        tmp_board[22] = 1
+        tmp_board[20] = -1
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 19)
+            self.qtable[key] = 0
+            return 19
+
+        tmp_board = np.zeros(27)
+        tmp_board[22] = 1
+        tmp_board[21] = -1
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 18)
+            self.qtable[key] = 0
+            return 18
+
+        tmp_board = np.zeros(27)
+        tmp_board[22] = 1
+        tmp_board[23] = -1
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 20)
+            self.qtable[key] = 0
+            return 20
+
+        tmp_board = np.zeros(27)
+        tmp_board[22] = 1
+        tmp_board[24] = -1
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 25)
+            self.qtable[key] = 0
+            return 25
+
+        tmp_board = np.zeros(27)
+        tmp_board[22] = 1
+        tmp_board[25] = -1
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 24)
+            self.qtable[key] = 0
+            return 24
+
+        tmp_board = np.zeros(27)
+        tmp_board[22] = 1
+        tmp_board[26] = -1
+        if np.array_equal(tmp_board, board_r):
+            key = (tuple(board_r), 25)
+            self.qtable[key] = 0
+            return 25    
+        
+        
         else:
             # 행동 가능한 상태를 저장
             available_action = get_action(c_player, arr)
@@ -995,7 +1079,7 @@ def main():  # 메인함수
     p1_score = 0
     p2_score = 0
     draw_score = 0
-    max_learn = 100000
+    max_learn = 300000
 
     for j in tqdm(range(max_learn)):
         np.random.seed(j)
