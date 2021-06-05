@@ -1212,7 +1212,7 @@ def main():  # 메인함수
             cnt += 1
         else:
             # 2플레이어 두는 곳.
-            time.sleep(0.5)
+            # time.sleep(0.5)
             # Random_player()
             # Monte_Carlo_player()
             # act = p2_Qplayer.select_action(array, -1)
