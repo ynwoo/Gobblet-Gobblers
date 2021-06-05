@@ -95,16 +95,16 @@ def init_game_window():
     screen.blit(p2_small_piece_img, (70, 40))
     screen.blit(p2_medium_piece_img, (155, 30))
     screen.blit(p2_medium_piece_img, (205, 30))
-    screen.blit(p2_large_piece_img, (275, 20))
-    screen.blit(p2_large_piece_img, (335, 20))
+    screen.blit(p2_large_piece_img, (273, 20))
+    screen.blit(p2_large_piece_img, (337, 20))
 
     # 말을 두개씩
     screen.blit(p1_small_piece_img, (40, 40 + 400))
     screen.blit(p1_small_piece_img, (70, 40 + 400))
     screen.blit(p1_medium_piece_img, (155, 30 + 400))
     screen.blit(p1_medium_piece_img, (205, 30 + 400))
-    screen.blit(p1_large_piece_img, (275, 20 + 400))
-    screen.blit(p1_large_piece_img, (335, 20 + 400))
+    screen.blit(p1_large_piece_img, (273, 20 + 400))
+    screen.blit(p1_large_piece_img, (337, 20 + 400))
 
     draw_status()
 
@@ -1092,7 +1092,7 @@ def main():  # 메인함수
     p1_score = 0
     p2_score = 0
     draw_score = 0
-    max_learn = 500000
+    max_learn = 10
 
     for j in tqdm(range(max_learn)):
         np.random.seed(j)
@@ -1203,13 +1203,14 @@ def main():  # 메인함수
             # 1플레이어 두는 곳.
             time.sleep(0.5)
             # Random_player()
-            # Human_player()
+            Human_player()
             # Monte_Carlo_player()
 
-            act = p1_Qplayer.select_action(array, 1, cnt)
-            Q_player(act)
-            turn_end = False
-            cnt += 1
+            
+            #act = p1_Qplayer.select_action(array, 1, cnt)
+            #Q_player(act)
+            #turn_end = False
+            #cnt += 1
         else:
             # 2플레이어 두는 곳.
             # time.sleep(0.5)
