@@ -1092,7 +1092,7 @@ def main():  # 메인함수
     p1_score = 0
     p2_score = 0
     draw_score = 0
-    max_learn = 10
+    max_learn = 700000
 
     for j in tqdm(range(max_learn)):
         np.random.seed(j)
@@ -1201,23 +1201,19 @@ def main():  # 메인함수
     while True:  # 화면을 계속 띄우기 위해
         if player == "P1":
             # 1플레이어 두는 곳.
-            time.sleep(0.5)
+            # time.sleep(0.5)
             # Random_player()
-            Human_player()
+            # Human_player()
             # Monte_Carlo_player()
-
-            
-            #act = p1_Qplayer.select_action(array, 1, cnt)
-            #Q_player(act)
-            #turn_end = False
-            #cnt += 1
+            act = p1_Qplayer.select_action(array, 1, cnt)
+            Q_player(act)
+            turn_end = False
+            cnt += 1
         else:
             # 2플레이어 두는 곳.
             # time.sleep(0.5)
             # Random_player()
             # Monte_Carlo_player()
-            # act = p2_Qplayer.select_action(array, -1)
-            # Q_player(act)
             Human_player()
             turn_end = False
 
