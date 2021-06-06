@@ -1,12 +1,12 @@
-import sys  # sys 패키지 임포트
+import sys
 import time
-import pygame  # 파이게임 패키지 임포트
+import pygame
 import numpy as np
-from pygame.locals import QUIT  # 파이게임의 기능 중 종료를 임포트
+from pygame.locals import QUIT
 from tqdm import tqdm
 sys.setrecursionlimit(5000)
-# 글로벌 변수 선언
 
+# 글로벌 변수 선언
 # 플레이어 값을 저장 P1 or P2
 player = 'P1'
 # 승자의 값을 저장
@@ -29,7 +29,6 @@ ch = 0
 turn_end = False
 # 게임 진행을 위한 삼중배열
 # player에 따라 1,-1 비어있으면 0
-# 깊이가 종류를 표현
 array = np.arange(27).reshape(3, 3, 3)
 for i in range(0, 3):
     for j in range(0, 3):
@@ -985,11 +984,11 @@ class Q_learning_player:
             self.qtable[key] = 0
             return 24
             # 행동 가능한 상태를 저장
-        # available_action = get_action(c_player, arr)
+
         available_action = []
-        # 큰 말이 놓여진 상황에서는 큰말을 놓는다.
+        # 작은 말이 놓여진 상황에서는 그 위치가 아닌 곳에 큰 말을 둔다
         if cnt == 1 and c_player == 1:
-            if limit_2(arr, c_player, 2):  # 큰 말을 놓을 수 있으면
+            if limit_2(arr, c_player, 2):
                 for i in range(18, 27):
                     # 작은 말은 먹어서는 안된다.
                     if board_r[i] == 0 and board_r[i-18] != -1:
@@ -1009,6 +1008,7 @@ class Q_learning_player:
                         if board_r[j] == 0 and board_r[j-9] == -1:
                             available_action.append(str(i) + 'to' + str(j))
         else:
+            # 그 이외에는 모든 행동 가능한 행동들 추가
             available_action = get_action(c_player, arr)
         # 행동 가능한 상태의 Q-value를 저장
         qvalues = np.zeros(len(available_action))
